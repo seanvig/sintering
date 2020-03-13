@@ -1,0 +1,14 @@
+Package: sintering
+Type: Package
+Title: Optimizing Kinetics of Alumina Sintering
+Version: 0.1.0
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+Author: Sean Taylor <seanvig@gmail.com> and Dennis Taylor <ko_au@hotmail.com>
+Maintainer: Sean Taylor <seanvig@gmail.com>
+Description: Based on the doctoral thesis work of Dennis H. Taylor.
+    This package performs dynamic programming to perform model fitting of the 
+    kinetics of rapid alumina sintering.
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true

@@ -1,0 +1,13 @@
+---
+title: "Optimization of Alumina Kinetics"
+author: Sean Taylor and Dennis Taylor
+output: html_notebook
+---
+
+## Subroutine to evaluate ET(I)
+
+```{r}
+YY <- function(B,AA) (1-B)/AA
+
+```
+
