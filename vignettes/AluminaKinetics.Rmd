@@ -15,23 +15,45 @@ data <- alumina %>% filter(Sample == "65")
 YY <- function(B,AA) (1-B)/AA
 Y<-data$y
 T<-data$t
-I <- nrow(data)
-R<-I
+I <- seq(nrow(data))
+L <- length(I)
+
+G <- 1e8
+MM <- L-2
+
+i <- 3 ## temporary fix I
+
+for (I in c(3:MM)) {
+ #call eval
+}
+
+R<-i # temporary fix I
+R1 = L-i+1
 
 #if (Y[1] -0 < 0.01) drop Y[1]?
 
 ##Find K
-Sum1Y <- sum(log(Y))
-Sum1T <- sum(T)
-Sum1N <- sum(T * log(Y - T*Sum1Y/R))
-Sum1D <- sum(T^2 - T*Sum1T/R)
+Sum1Y <- sum(log(Y[1:i]))
+Sum1T <- sum(T[1:i])
+Sum1N <- sum(T[1:i] * log(Y[1:i] - T[1:i]*Sum1Y/R))
+Sum1D <- sum(T[1:i]^2 - T[1:i]*Sum1T/R)
 XK <- Sum1N /Sum1D
 
 ##Find log A = C
-SumC <- sum((log (Y) - XK*T)/R)
+SumC <- sum((log (Y[1:i]) - XK*T[1:i])/R)
 XC <- SumC
 
 #if (XC > 88) do something
 XA <- exp(XC)
+
+## Find J
+
+MO <- i
+MP <- i+1
+AA <- 2 * (1-Y[L])
+
+Sum2Y <- sum(log(YY(Y[MO],AA)))
+Sum2T <- T[MO]^S(1)
+
 ```
 
