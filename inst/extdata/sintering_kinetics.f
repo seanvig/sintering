@@ -1,0 +1,216 @@
+      PROGRAM MAIN
+C     COMPUTATION OF OPTIMUM TIME AT WHICH AN INTEGRATED JOHNSONS
+C    1EQUATION DESCRIBES THE SINTERING PROCESS
+
+      DIMENSION S(8), ET(25), Y(25), T(25), XXT(8), XI(8), XT(8),
+     1XXA(8), XXB(8), XXJ(8), XXK(8), THEOY(25), XA(25), XK(25),
+     2XB(25), XJ(25), XT1(8)
+      COMMON Y, T, I, XK, XA, S, XJ, XB, ET, N, L
+      READ 1, ( S(N), N=1,8)
+      READ 1, ( Y(I), I=1,25)
+      READ 1, YC
+      READ 1, (T(I), I=1,25)
+      READ 1, TC1, TC2
+    1 FORMAT ( 8F10.3 )
+      ESP = 0.001
+      DO 2 L=1,25
+      IF ((ABS(Y(L) - 99999,)) .LT. ESP ) GO TO 4
+    2 CONTINUE
+    4 L = L-1
+      DO 6 I=1,L
+      Y(1) = Y(1)/YC
+      T(I) = (T(I) - TC1)/TC2
+    6 CONTINUE
+      PRINT 8
+    8 FORMAT (25H Y(I) T(I))
+      PRINT 10, (Y(I), T(I), I=1,L)
+   10 FORMAT (1X, 2F10.3)
+      PRINT 12, L
+   12 FORMAT (5H L= ,I6//)
+      DO 22 N= 1,8
+      G = 1.0E8
+      MM = L-2
+      DO 16 I = 3,MM
+      CALL EVAL
+   16 CONTINUE
+      DO 18 I = 3,MM
+      IF ( ET(I) .LT. G ) K=I
+      IF ( ET(I) .LT. G ) G = ET(I)
+   18 CONTINUE
+      I=K
+      PRINT 20, S(N), I, T(I), G
+   20 FORMAT (12H FOR S(N) = ,F6.3, 31H THE OPTIMUM VALUE OF I IS = ,
+     *I6,/ 'AND THE OPTIMUM TIME IS T(I) = ',F6.3/ 'AND ET(I) OR '
+     *'G = ',F10.6// )
+      XXT(N) = G
+      XI(N) = (I)
+      XT(N) = T(I)
+      XT1(N) = T(I+1)
+      XXA(N) = XA(I)
+      XXB(N) = XB(I)
+      XXJ(N) = XJ(I)
+      XXK(N) = XK(I)
+      PRINT 34
+   34 FORMAT ( 25H THEOY(J) T(J))
+      IJ = I+1
+      DO 38 J = 1,IJ
+      THEOY(J) = XA(I) * EXP ( XK(I) * T(J))
+      PRINT 36, THEOY(J), T(J)
+   36 FORMAT (1X, 2F10.3 )
+   38 CONTINUE
+      IH = I-1
+   42 J = IH,L
+      THEOY(J) = 1. — XB(I) * EXP ( -XJ(I) * T(J)**S(N) )
+      PRINT 40, THEOY(J), T(J)
+   40 FORMAT ( 1X, 2F10.3 )
+   42 CONTINUE
+   22 CONTINUE
+      XMIN =1.0E8
+      DO 24 N= 1,8
+      IF ( XXT(N) .LT. XMIN ) NQ = N
+      IF ( XXT(N) .LT. XMIN ) XMN =I XXT(N)
+   24 CONTINUE
+      N = NQ
+   28 PRINT 30, XT(N), XI(N), XXB(N), XXJ(N), S(N), XXA(N), XXK(N),
+     *XXT(N)
+   30 FORMAT (9H XT(N) = ,F6.3, 9H XI(N) = ,F6.3, 10H XXB(N) = ,F10.5,
+     *10H XXJ(N) = ,F15.4 / 8H S(N) = ,F6.3, 10H XXA(N) = ,F6.3,
+     *10H XXK(N) = ,F6.3, 10H XXT(N) = ,F10.5 )
+C     COMPUTE SLOPE OF CURVE AT OPTIMUM TIME
+      SLOPE = S(N) * XXB(N) * XXJ(N) * XT(N)**(S(N)—1.)
+     1*EXP( -XXJ(N) * XT(N)**S(N) )
+C     COMPUTE SLOPE OF CURVE AT FIRST POINT PAST OPTIMUM TIME
+      SLOPE2 = S{N) * XXB(N) * XXJ(N) * XT1(N)**(S(N)-1. )
+     1*EXP ( -XXJ(N) * XTI(N)**S(N) )
+      PRINT 32, SLOPE , SLOPE2, XT1(N)
+   32 FORMAT ( 1X, 'SLOPE AT I = ',F6.3, 5X, 'SLOPE AT I+1 = ',F6.3,
+     * 5X, 'XT1(N) = ',F6.3 )
+      END
+
+C     SUBROUTINE TO EVALUATE ET(T)
+      SUBROUTINE EVAL
+      COMMON Y, T, I, XK, XA, S, XJ, XB, ET, N, L
+      DIMENSION Y(25), T(25), S(8), ET(25), XA(25), XK(25), XB(25),
+     *XJ(25)
+      DEFINE YY(B,AA) = (1. —B) / AA
+      R=I
+      Rl = L-I +1
+      IF ( (Y(1) - 0.0) .LT. 0.01 ) Go To 26
+C     FIND K
+      SUM1Y = ALOG (Y(1))
+      DO 4 J = 2,I
+      SUM1Y = SUM1Y + ALOG (Y(J))
+    4 CONTINUE
+      SUM1T = T(1)
+      DO 5 J= 2,I
+      SUMIT = SUMIT + T(J)
+    5 CONTINUE
+      SUM1N = T(1) * ALOG (Y(1)) - T(1) * SUM1Y/R
+      DO 6 J=2,I
+      SUM1N = SUM1N + T(J) * ALOG (Y(J)) - T(J) * SUM1Y/R
+    6 CONTINUE
+      SUM1D = T(1)**2. — T(1) * SUMIT/R
+      DO 7 J=2,I
+      SUMID = SUM1D + T(J)**2. - T(J) * SUMIT/R
+    7 CONTINUE
+      XK(I) = SUM1N / SUM1D
+C     FIND LOG A=C
+      SUMC = (ALOG (Y(1)) - XK(I) * T(1) )/R
+      DO 8 J = 2,I
+      SUMC = SUMC + ( ALOG (Y(J)) - XK(J) * T(J) )/R
+      XC = SUMC
+    8 CONTINUE
+
+      IF (XC .GT. 88. ) GO TO 52
+      XA(I) = EXP (XC)
+      GO T0 9
+   26 CONTINUE
+C     FIND K
+      SUM1Y = ALOG (Y(2))
+      DO 28 J = 3,I
+      SUM1Y = SUM1Y + ALOG (Y(J))
+   28 CONTINUE
+      SUM1 = T(2)
+      DO 30 J = 3,I
+      SUM1T = SUM1T + T(J)
+   30 CONTINUE
+      SUM1N + T(2) * ALOG (Y(2)) - T(2) * SUM1Y/R
+      DO 32 J = 3,I
+      SUM1N = SUM1N + T(J) * ALOG (Y(J))= T(J) * SUM1Y/R
+   32 CONTINUE
+      SUM1D = T(2)**2. - T(2) * SUM1T/R
+      DO 34 J = 3,I
+      SUM1D = SUM1D + T(J)**2. - T(J) * SUM1T/R
+   34 CONTINUE
+      XK(I) = SUM1N / SUM1D
+C     FIND LOG A = C
+      SUMC = (ALOG (Y(2)) - XK(I) * T(2) )/R
+      DO 36 J = 3,I
+      SUMC = SUMC + ( ALOG (Y(J)) - XK(I) * T(J) )/R
+      XC = SUMC
+   36 CONTINUE
+      IF ( XC .GT. 88. ) GO TO 52
+      XA(I) = EXP (XC)
+      GO TO 9
+    9 CONTINUE
+   40 PRINT 42, XC
+   42 FORMAT ( 1X, 'XC = ',F10.3 )
+      CONTINUE
+C     FIND J
+      MO =I
+      MP = I+1
+      AA = 2. * (1. - Y(L))
+      SUM2Y = ALOG ( YY(Y(MO),AA) )
+      DO 10 J = MP,L
+      SUM2Y = SUM2Y + ALOG ( YY(Y(J),AA) )
+   10 CONTINUE
+      SUM2T = T(MO)**S(N)
+      DO 12 J = MP,L
+      SUM2T = SUM2T + T(J)**S(N)
+   12 CONTINUE
+      SUM2N = T(MO)**S(N) * ALOG(YY(Y(MO), AA))-T(MO)**S(N)*SUM2Y/R1
+      DO 14 J = MP,L
+      SUM2N=SUM2N + T(J)**S(N) * ALOG(YY(Y(J), AA))-T(J)**S(N)*SUM2Y/R1
+   14 CONTINUE
+      SUM2D = T(MO)**S(N) * SUM2T/R1 - T(MO)**(2.*S(N))
+      DO 16 J = MP,L
+      SUM2D = SUM2D + T(J)**S(N) * SUM2T/RI - T(J)**(2.*S(N))
+   16 CONTINUE
+
+      XJ(I) = SUM2N / SUM2D
+C     FIND LOG B = D
+      SUMD = ( XJ(I) * T(MO)**S(N) + ALOG ( YY( Y(MO),AA)) )/RI
+      DO 18 J = MP,L
+      SUMD = SUMD + (XJ(I) * T(J)**S(N) + ALOG (YY(Y(J),AA)) )/RI
+      XD = SUMD
+   18 CONTINUE
+      IF ( XD .GT. 88.) GO TO 48
+      XBB = EXP (XD)
+      XB(I) = XBB * AA
+C     EVALUATE ET(I)
+      SUMEIA = ( Y(1) - XA(I) * EXP (XK(I) * T(1)) )**2.
+      DO 20 J = 2,I
+      SUMEIA = SUMEIA + (Y(J) — XA(I) * EXP (XK(I) * T(J)) )**2.
+   20 CONTINUE
+      MN = I
+      M = I+1
+      SUME1B = ( Y(MN)-1. + XB(I) * EXP (-XJ(I) * T(MN)**S(N)) )**2.
+      DO 22 J = M,L
+      SUMEIB = SUMEIB + (Y(J)-1. + XB(I)*EXP (-XJ(I) * T(J)**S(N)) )**2.
+   22 CONTINUE
+      ET(1) = SUMEIA + SUMEIB
+      PRINT 43, XA(I), XK(I), XB(I), XJ(I)
+   43 FORMAT ( 1X, 'XA(I) = ',F15.5, 3X, 'XK(I) = ',F15.5, 3X,
+     * 'XB(I) = ',F15.5, 3X, 'XJ(I) = ',F15.5 )
+   44 PRINT 46, XD , ET(I)
+   46 FORMAT (1X, 'XD = ',F10.3, 9X, 'ET(I) OR G = ',F10.5 )
+      RETURN
+   48 ET(I) = 10.0
+      PRINT 50, XD, ET(I)
+   50 FORMAT ( 1X, 'XD = ',F10.3, 'ET(I) = ',F10.5 )
+      RETURN
+   52 ET(I) = 10.0
+      PRINT 54, XC, ET(I)
+   54 FORMAT (1X, 'XC = ',F10.3, 'ET(I) = ',F10.5  )
+      RETURN
+      END
