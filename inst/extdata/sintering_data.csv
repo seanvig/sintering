@@ -1,5 +1,5 @@
 ﻿Sample,t,y,Type,Dope
-120,0,0.040,LindeA,Pure
+120,0,0.04,LindeA,Pure
 120,10,0.045,LindeA,Pure
 120,20,0.065,LindeA,Pure
 120,30,0.09,LindeA,Pure
@@ -27,7 +27,7 @@
 65,100,0.97,LindeA,Y2O3
 65,110,0.98,LindeA,Y2O3
 65,120,0.99,LindeA,Y2O3
-65,150,1,LindeA,Y2O3
+65,150,0.999,LindeA,Y2O3
 70,0,0.175,LindeA,SnO2
 70,10,0.265,LindeA,SnO2
 70,20,0.4,LindeA,SnO2
@@ -40,5 +40,5 @@
 70,80,0.97,LindeA,SnO2
 70,90,0.98,LindeA,SnO2
 70,100,0.99,LindeA,SnO2
-70,110,1,LindeA,SnO2
-70,120,1,LindeA,SnO2
+70,110,0.999,LindeA,SnO2
+70,120,0.999,LindeA,SnO2
