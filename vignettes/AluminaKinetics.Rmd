@@ -16,13 +16,17 @@ YY <- function(B,AA) (1-B)/AA
 S <- seq(.25,2,by=.25) #Letting the exponent n float
 Y <- data$y
 T <- data$t
-I <- seq(nrow(data))
-L <- length(I)
+L <- length(I) # number of samples
 
 G <- 1e8
-MM <- L-2
-N<-1:8
 
+# Various indexes used
+MM <- L-2 
+N<-1:8
+I <- seq(nrow(data)) # a sample index
+
+
+## to simulate a for loop, fix i for I and n for N
 i <- 3 ## temporary fix I
 n<-1 ## temporary fix for N
 
@@ -32,7 +36,7 @@ for (N in N){
   }
 }
 
-R<-i # temporary fix I
+R<-i # represents the number of samples included in the calculation
 R1 = L-i+1
 
 #if (Y[1] -0 < 0.01) drop Y[1]?
@@ -48,7 +52,12 @@ XK <- Sum1N /Sum1D
 SumC <- sum((log (Y[1:i]) - XK*T[1:i])/R)
 XC <- SumC
 
-#if (XC > 88) do something
+if (XC > 88) {
+  ET <- 10
+  result <-  list(XC=XC, ET=ET)
+  return(result)
+}
+
 XA <- exp(XC)
 
 ## Find J
@@ -63,6 +72,29 @@ Sum2N <- sum(T[MO:L]^S[n] * log(YY(Y[MO:L],AA))-T[MO:L]^S[n]*Sum2Y)
 Sum2D <- sum(T[MO:L]^S[n] *Sum2T/R1 - T[MO:L]^(2*S[n]))
 XJ <- Sum2N/Sum2D
 
+## Find Log B = D
 
-```
+SUMD <- sum((XJ * T[MO:L]^S[n] + log(YY(Y[MO:L],AA)))/R1)
+XD <- SUMD
+
+if(XD > 88){
+  ET <- 10.0
+  result <- list(XD=XD, ET=ET)
+  return(result)
+} 
+XBB <- exp(XD)
+XB = XBB * AA
+
+## Evaluate ET(I)
+SUMEIA <- sum((Y[1:i] - XA*exp(XK*T[1:i]))^2)
+
+MN <- i
+M <- i+1
+
+SUMEIB <- sum((Y[MN:L]-1 + XB*exp(-XJ*T[MN:L]^S[n]))^2)
+
+ET <- SUMEIA+SUMEIB
+
+result <- list(XA=XA, XK=XK, XB=XB, XJ=XJ, XD=XD, ET=ET)
+return(result)
 
