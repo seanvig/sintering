@@ -96,6 +96,7 @@ C     SUBROUTINE TO EVALUATE ET(T)
       R=I
       Rl = L-I +1
       IF ( (Y(1) - 0.0) .LT. 0.01 ) Go To 26
+
 C     FIND K
       SUM1Y = ALOG (Y(1))
       DO 4 J = 2,I
@@ -114,17 +115,18 @@ C     FIND K
       SUMID = SUM1D + T(J)**2. - T(J) * SUMIT/R
     7 CONTINUE
       XK(I) = SUM1N / SUM1D
+
 C     FIND LOG A=C
       SUMC = (ALOG (Y(1)) - XK(I) * T(1) )/R
       DO 8 J = 2,I
       SUMC = SUMC + ( ALOG (Y(J)) - XK(J) * T(J) )/R
       XC = SUMC
     8 CONTINUE
-
       IF (XC .GT. 88. ) GO TO 52
       XA(I) = EXP (XC)
       GO T0 9
    26 CONTINUE
+
 C     FIND K
       SUM1Y = ALOG (Y(2))
       DO 28 J = 3,I
@@ -143,6 +145,7 @@ C     FIND K
       SUM1D = SUM1D + T(J)**2. - T(J) * SUM1T/R
    34 CONTINUE
       XK(I) = SUM1N / SUM1D
+
 C     FIND LOG A = C
       SUMC = (ALOG (Y(2)) - XK(I) * T(2) )/R
       DO 36 J = 3,I
@@ -156,6 +159,7 @@ C     FIND LOG A = C
    40 PRINT 42, XC
    42 FORMAT ( 1X, 'XC = ',F10.3 )
       CONTINUE
+
 C     FIND J
       MO =I
       MP = I+1
@@ -176,8 +180,8 @@ C     FIND J
       DO 16 J = MP,L
       SUM2D = SUM2D + T(J)**S(N) * SUM2T/RI - T(J)**(2.*S(N))
    16 CONTINUE
-
       XJ(I) = SUM2N / SUM2D
+
 C     FIND LOG B = D
       SUMD = ( XJ(I) * T(MO)**S(N) + ALOG ( YY( Y(MO),AA)) )/RI
       DO 18 J = MP,L
@@ -187,6 +191,7 @@ C     FIND LOG B = D
       IF ( XD .GT. 88.) GO TO 48
       XBB = EXP (XD)
       XB(I) = XBB * AA
+
 C     EVALUATE ET(I)
       SUMEIA = ( Y(1) - XA(I) * EXP (XK(I) * T(1)) )**2.
       DO 20 J = 2,I
