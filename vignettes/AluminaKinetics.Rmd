@@ -16,85 +16,97 @@ YY <- function(B,AA) (1-B)/AA
 S <- seq(.25,2,by=.25) #Letting the exponent n float
 Y <- data$y
 T <- data$t
-L <- length(I) # number of samples
+L <- nrow(data) # number of samples
+
+## initialize some results vectors
+XK <- c()
+XA <- c()
+XJ <- c()
+XB <- c()
+ET <- c()
 
 G <- 1e8
 
 # Various indexes used
 MM <- L-2 
 N<-1:8
-I <- seq(nrow(data)) # a sample index
+I <- seq(3, MM) # a sample index
 
+
+## start subroutine
+eval <- function(i, n) {
+  R<-i # represents the number of samples included in the calculation
+  R1 = L-i+1
+  
+  
+  ##Fulfills Line 26 code block
+  if (Y[1] -0 < 0.01) start <- 1 else start <- 2
+  
+  ##Find K
+  Sum1Y <- sum(log(Y[start:i]))
+  Sum1T <- sum(T[start:i])
+  Sum1N <- sum(T[start:i] * log(Y[start:i] - T[start:i]*Sum1Y/R))
+  Sum1D <- sum(T[start:i]^2 - T[start:i]*Sum1T/R)
+  XK[i] <- Sum1N /Sum1D
+  
+  ##Find log A = C
+  SumC <- sum((log (Y[start:i]) - XK[i]*T[start:i])/R)
+  XC <- SumC
+  
+  if (XC > 88) {
+    ET[i] <- 10
+    result <-  list(XC=XC, ET=ET[i])
+    return(result)
+  }
+  
+  XA[i] <- exp(XC)
+  
+  ## Find J
+  
+  MO <- i
+  MP <- i+1
+  AA <- 2 * (1-Y[L])
+  
+  Sum2Y <- sum(log(YY(Y[MO],AA)))
+  Sum2T <- sum(T[MO:L]^S[n])
+  Sum2N <- sum(T[MO:L]^S[n] * log(YY(Y[MO:L],AA))-T[MO:L]^S[n]*Sum2Y)
+  Sum2D <- sum(T[MO:L]^S[n] *Sum2T/R1 - T[MO:L]^(2*S[n]))
+  XJ[i] <- Sum2N/Sum2D
+  
+  ## Find Log B = D
+  
+  SUMD <- sum((XJ[i] * T[MO:L]^S[n] + log(YY(Y[MO:L],AA)))/R1)
+  XD <- SUMD
+  
+  if(XD > 88){
+    ET[i] <- 10.0
+    result <- list(XD=XD, ET=ET[i])
+    return(result)
+  } 
+  XBB <- exp(XD)
+  XB[i] = XBB * AA
+  
+  ## Evaluate ET(I)
+  SUMEIA <- sum((Y[1:i] - XA[i]*exp(XK[i]*T[1:i]))^2)
+  
+  MN <- i
+  M <- i+1
+  
+  SUMEIB <- sum((Y[MN:L]-1 + XB[i]*exp(-XJ[i]*T[MN:L]^S[n]))^2)
+  
+  ET[i] <- SUMEIA+SUMEIB
+  
+  result <- list(XA=XA[i], XK=XK[i], XB=XB[i], XJ=XJ[i], XD=XD, ET=ET[i])
+  return(result)
+}
 
 ## to simulate a for loop, fix i for I and n for N
-i <- 3 ## temporary fix I
-n<-1 ## temporary fix for N
+#i <- 3 ## temporary fix I
+#n <- 1 ## temporary fix for N
 
-for (N in N){
-  for (I in c(3:MM)) {
-    #call eval
-  }
-}
+results <- lapply(setNames(N, N), function (n) {
+  results <- lapply(setNames(I,I), eval, n=n)
+  return(results)
+})
 
-R<-i # represents the number of samples included in the calculation
-R1 = L-i+1
-
-#if (Y[1] -0 < 0.01) drop Y[1]?
-
-##Find K
-Sum1Y <- sum(log(Y[1:i]))
-Sum1T <- sum(T[1:i])
-Sum1N <- sum(T[1:i] * log(Y[1:i] - T[1:i]*Sum1Y/R))
-Sum1D <- sum(T[1:i]^2 - T[1:i]*Sum1T/R)
-XK <- Sum1N /Sum1D
-
-##Find log A = C
-SumC <- sum((log (Y[1:i]) - XK*T[1:i])/R)
-XC <- SumC
-
-if (XC > 88) {
-  ET <- 10
-  result <-  list(XC=XC, ET=ET)
-  return(result)
-}
-
-XA <- exp(XC)
-
-## Find J
-
-MO <- i
-MP <- i+1
-AA <- 2 * (1-Y[L])
-
-Sum2Y <- sum(log(YY(Y[MO],AA)))
-Sum2T <- sum(T[MO:L]^S[n])
-Sum2N <- sum(T[MO:L]^S[n] * log(YY(Y[MO:L],AA))-T[MO:L]^S[n]*Sum2Y)
-Sum2D <- sum(T[MO:L]^S[n] *Sum2T/R1 - T[MO:L]^(2*S[n]))
-XJ <- Sum2N/Sum2D
-
-## Find Log B = D
-
-SUMD <- sum((XJ * T[MO:L]^S[n] + log(YY(Y[MO:L],AA)))/R1)
-XD <- SUMD
-
-if(XD > 88){
-  ET <- 10.0
-  result <- list(XD=XD, ET=ET)
-  return(result)
-} 
-XBB <- exp(XD)
-XB = XBB * AA
-
-## Evaluate ET(I)
-SUMEIA <- sum((Y[1:i] - XA*exp(XK*T[1:i]))^2)
-
-MN <- i
-M <- i+1
-
-SUMEIB <- sum((Y[MN:L]-1 + XB*exp(-XJ*T[MN:L]^S[n]))^2)
-
-ET <- SUMEIA+SUMEIB
-
-result <- list(XA=XA, XK=XK, XB=XB, XJ=XJ, XD=XD, ET=ET)
-return(result)
-
+```
