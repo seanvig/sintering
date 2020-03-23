@@ -104,9 +104,12 @@ eval <- function(i, n) {
 #i <- 3 ## temporary fix I
 #n <- 1 ## temporary fix for N
 
-results <- lapply(setNames(N, N), function (n) {
+results <- lapply(setNames(N, S), function (n) {
   results <- lapply(setNames(I,I), eval, n=n)
   return(results)
 })
+
+ET <- sapply(results, function (x) sapply(x, "[[", "ET"))
+
 
 ```
