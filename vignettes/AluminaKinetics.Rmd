@@ -110,6 +110,278 @@ results <- lapply(setNames(N, S), function (n) {
 })
 
 ET <- sapply(results, function (x) sapply(x, "[[", "ET"))
+XA <- sapply(results, function (x) sapply(x, "[[", "XA"))
+XK <- sapply(results, function (x) sapply(x, "[[", "XK"))
+XB <- sapply(results, function (x) sapply(x, "[[", "XB"))
+XJ <- sapply(results, function (x) sapply(x, "[[", "XJ"))
+
+
 
 
 ```
+
+
+## Rewrite code principles the R way
+
+```{r}
+library(sintering)
+library(dplyr)
+library(ggplot2)
+
+data <- alumina %>% filter(Sample == "65")
+
+N <- seq(.25,2,by=.25) #Letting the exponent n float
+Y <- data$y
+T <- data$t
+
+
+glm(log(y)~t, data=data, family="gaussian")->foo
+
+bar <- lm(log(y)~t, data=data)
+
+plot(data$y, data$x)
+abline
+
+p<-ggplot(data)
+
+plot1 <- p + geom_point(aes(x=t, y=y)) +
+  scale_y_continuous(trans='log') +
+  ##scale_x_continuous(trans='log') +
+  geom_line(aes(x=t, y=y), stat="smooth", method="glm") +
+  coord_trans(y="exp")
+
+K<-foo$coefficients["t"]
+A<-exp(foo$coefficients[1])
+
+pred <- data.frame(t=seq(20, 150, 1))
+pred$y <- A*exp(K*pred$t)
+
+plot2<-ggplot() +
+  geom_line(data = pred, aes(x=t, y=y)) +
+  geom_point(data = data, aes(x=t, y=y)) +
+    scale_y_continuous(limits=c(0,2))
+
+
+
+
+foo2 <- glm(log(y)~t, data=data, subset=1:6)
+K2<-foo2$coefficients["t"]
+A2<-exp(foo2$coefficients[1])
+
+pred2 <- data.frame(t=seq(20, 150, 1))
+pred2$y <- A2*exp(K2*pred2$t)
+
+plot3<-ggplot() +
+  geom_line(data = pred2, aes(x=t, y=y)) +
+  geom_point(data = data, aes(x=t, y=y))+
+  scale_y_continuous(limits=c(0,2))
+
+
+
+
+
+plot1;plot2;plot3
+
+
+vglm <- function(x, y, index){
+  x<-x[1:index]
+  
+  model <- glm(log(y)~x, family=gaussian)
+  return(model)
+}
+
+vvglm <- Vectorize(vglm, vectorize.args = "index")
+
+test <- vvglm(x=data$t, y=data$y, index=length(data$t))
+
+test <- lapply(1:nrow(data), function(i){
+  model<-glm(log(y)~t, data=data, subset=1:i)
+  
+  K<-model$coefficients["t"]
+  A<-exp(model$coefficients[1])
+
+  pred <- data.frame(t=seq(20, 150, 1))
+  pred$y <- A*exp(K*pred$t)
+
+  plot<-ggplot() +
+    geom_line(data = pred, aes(x=t, y=y)) +
+    geom_point(data = data, aes(x=t, y=y)) +
+    scale_y_continuous(limits=c(0,2))
+  
+  return(plot)
+
+})
+
+test
+```
+
+
+```{r}
+library(ggplot2)
+#foo<-nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1),subset=5:14)
+
+test2 <- lapply(1:10, function(i){
+  model<-nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1),subset=i:14)
+  
+  B<-coefficients(model)["B"]
+  J<-coefficients(model)["J"]
+
+  pred <- data.frame(t=seq(20, 150, 1))
+  pred$y <- 1-(B*exp(-J*pred$t))
+
+  plot<-ggplot() +
+    geom_line(data = pred, aes(x=t, y=y)) +
+    geom_point(data = data, aes(x=t, y=y)) +
+    scale_y_continuous(limits=c(0,2))
+  
+  return(plot)
+
+})
+
+test2
+
+
+
+
+```
+
+```{r}
+library(ggplot2)
+
+test3 <- lapply(1:10, function(i){
+  model1 <- glm(log(y)~t, data=data, subset=1:i)
+  model2 <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1),subset=i:14)
+  
+  ET<-sum(resid(model1)^2) + sum(resid(model2)^2)
+  
+  K<-coef(model1)["t"]
+  A<-exp(coef(model1)["(Intercept)"])
+  B<-coefficients(model2)["B"]
+  J<-coefficients(model2)["J"]
+
+  pred1 <- data.frame(t=seq(20, 150, 1))
+  pred1$y <- A*exp(K*pred1$t)
+  
+  pred2 <- data.frame(t=seq(20, 150, 1))
+  pred2$y <- 1-(B*exp(-J*pred2$t))
+  
+
+  plot<-ggplot() +
+    geom_line(data = pred1, aes(x=t, y=y), color="blue") +
+    geom_line(data = pred2, aes(x=t, y=y), color="red") +
+    geom_point(data = data, aes(x=t, y=y)) +
+    scale_y_continuous(limits=c(0,2))
+  
+  return(list(ET=ET, plot=plot, K=K, A=A, B=B, J=J))
+
+})
+
+ET <- sapply(test3, function(x) x$ET)
+A <- sapply(test3, function(x) x$A)
+K <- sapply(test3, function(x) x$K)
+B <- sapply(test3, function(x) x$B)
+J <- sapply(test3, function(x) x$J)
+
+
+test3[[which.min(ET)]]$plot
+
+test3[which.min(ET)]
+
+```
+
+
+## Some ideas from Jason
+
+```{r}
+library(inflection)
+library(sintering)
+
+
+
+load("../Desktop/alumina.Rda")
+p <- alumina[alumina$Dope=="Y2O3",]
+plot(p$t, p$y)
+
+
+
+grid()
+bb <- ese(p$t,p$y,0)
+bb
+pese=bb[,3];pese
+abline(v=pese)
+cc=bese(p$t,p$y,0)
+cc$iplast
+abline(v=cc$iplast,col='blue')
+
+
+
+foo <- glm(formula = p$y ~ p$t, family=binomial)
+plot(foo)
+
+
+
+
+
+plot(p$t, p$y)
+spl3 <- smooth.spline(x = p$t, y = p$y, df = 8)
+lines(spl3, col = 2)
+```
+
+
+## Using nls to combine both equations
+Based on some ideas given to me on stack overflow
+https://stackoverflow.com/questions/60728502/fitting-different-parts-of-data-to-different-models-in-r
+https://stackoverflow.com/questions/15874214/piecewise-function-fitting-with-nls-in-r
+
+
+```{r}
+library(inflection)
+library(sintering)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(minpack.lm)
+
+data <- alumina %>% filter(Sample == "65")
+
+inflection <- ese(data$t, data$y, index=0)[3]
+alt_inflection <- bese(data$t, data$y, index=0)$iplast
+
+plot <- ggplot() +
+  geom_point(data=data, aes(x=t, y=y)) +
+  geom_vline(xintercept=inflection, color="blue") +
+  geom_vline(xintercept=alt_inflection, color="red", linetype="dashed") 
+  
+plot
+
+
+model <- nls(y ~ ifelse(t<inflection,
+               A*exp(K*t),
+               1-B*exp(J*(t^n))),
+    data=data,
+    start=c(A=0.016, K=0.06, B=6, J=-0.04, n=1))
+
+
+model2 <- nlsLM(y ~ ifelse(t<inflection,
+               A*exp(K*t),
+               1-B*exp(J*(t^n))),
+    data=data,
+    algorithm = "port",
+    control=list(maxiter=100),
+    start=c(A=0.016, K=0.06, B=6, J=-0.04, n=1),
+    lower=c(-Inf, -Inf, -Inf, -Inf, 0.25),
+    upper=c(Inf, Inf, Inf, Inf, 2))
+
+
+pred <- data.frame(t=seq(20, 150, 1))
+pred$model1 <- predict(model, newdata=pred)
+pred$model2 <- predict(model2, newdata=pred)
+
+predictions <- gather(pred, key="model", value="y", 2:3)
+
+
+plot + geom_line(data=predictions, aes(x=t, y=y, group=model, color=model)) 
+
+summary(model)$r.squared
+```
+
