@@ -315,15 +315,36 @@ abline(v=cc$iplast,col='blue')
 
 
 
-foo <- glm(formula = p$y ~ p$t, family=binomial)
-plot(foo)
+foo <- glm(formula = p$y ~ p$t, family=quasibinomial)
+
+
+range(p$t)
+
+pred <- data.frame(t=seq(20, 150, 1))
+xtime <- predict.glm(foo, newdata=pred)
 
 
 
 
+pred <- predict(foo, type="response")
+predictions <- gather(pred, key="model", value="y", 2:3)
 
-plot(p$t, p$y)
-spl3 <- smooth.spline(x = p$t, y = p$y, df = 8)
+
+
+
+plot <- ggplot() +
+  geom_point(data=p, aes(x=t, y=y))
+plot
+
+
+
+plot + geom_line(data=data.frame(t=p$t, y=pred), aes(x=t, y=y))
+
+
+plot(p$t, p$y, more=TRUE)
+lines(xtime, ytime, col= "blue", lwd = 2)
+
+spl3 <- smooth.spline(x = p$t, y = p$y, df = 12)
 lines(spl3, col = 2)
 ```
 
@@ -357,9 +378,9 @@ plot
 
 model <- nls(y ~ ifelse(t<inflection,
                A*exp(K*t),
-               1-B*exp(J*(t^n))),
+               1-B*exp(J*(t))),
     data=data,
-    start=c(A=0.016, K=0.06, B=6, J=-0.04, n=1))
+    start=c(A=0.016, K=0.06, B=6, J=-0.04))
 
 
 model2 <- nlsLM(y ~ ifelse(t<inflection,
@@ -383,5 +404,224 @@ predictions <- gather(pred, key="model", value="y", 2:3)
 plot + geom_line(data=predictions, aes(x=t, y=y, group=model, color=model)) 
 
 summary(model)$r.squared
+```
+
+
+## Optimize the inflection point
+
+There is not a seamless transition between the two models. Try to optimze the delta in the y term between the two models
+
+```{r}
+library(inflection)
+library(sintering)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(minpack.lm)
+
+eval <- function (inflection){
+  
+  model <- nlsLM(y ~ ifelse(t<inflection,
+               A*exp(K*t),
+               1-B*exp(J*(t^n))),
+    data=data,
+    algorithm = "port",
+    control=list(maxiter=100),
+    start=c(A=0.016, K=0.06, B=6, J=-0.04, n=1),
+    lower=c(-Inf, -Inf, -Inf, -Inf, 0.25),
+    upper=c(Inf, Inf, Inf, Inf, 2))
+  
+  y1 <- coef(model)['A']*exp(coef(model)['K']*inflection)
+  y2 <- 1-(coef(model)['B']*exp(coef(model)['J']*inflection^coef(model)['n']))
+  delta <- (y1-y2)^2
+  
+  r.square <- sum(residuals(model2)^2)
+  
+  return(list(delta=delta, r.square=r.square, model=model))
+  
+
+}
+
+
+delta <- function(inflection) eval(inflection)$delta
+r2 <- function(inflection) eval(inflection)$r.square
+
+optimumInflection <- optimize(f=delta, interval=c(40,80))
+optimumR2 <- optimize(f=r2, interval=c(40,80))
+
+resultInflection <- eval(optimumInflection$minimum)
+resultInflection.model <- resultInflection$model
+
+resultR2 <- eval(optimumR2$minimum)
+resultR2.model <- resultR2$model
+
+
+
+
+pred <- data.frame(t=seq(20, 150, 1))
+pred$model1 <- predict(model, newdata=pred)
+pred$model2 <- predict(model2, newdata=pred)
+pred$model3 <- predict(resultInflection.model, newdata=data.frame(t=seq(20, 150, 1)))
+pred$model4 <- predict(resultR2.model, newdata=data.frame(t=seq(20, 150, 1)))
+
+
+predictions <- gather(pred, key="model", value="y", 2:5)
+plot + geom_line(data=predictions, aes(x=t, y=y, group=model, color=model)) 
+
+
+```
+
+
+
+
+
+## Ensure both functions include the inflection point
+
+```{r}
+
+eval <- function (inflection){
+  
+  rhf <- function(t,A,K) ifelse(t<=inflection, A*exp(K*t), 0)
+  lhf <- function(t,B,J,n) ifelse(t>=inflection, 1-B*exp(J*(t^n)), 0)
+  
+  model <- nlsLM(y ~ rhf(t,A,K) + lhf(t,B,J,n),
+    data=data,
+    algorithm = "port",
+    control=list(maxiter=100),
+    start=c(A=0.016, K=0.06, B=6, J=-0.04, n=1),
+    lower=c(-Inf, -Inf, -Inf, -Inf, 0.25),
+    upper=c(Inf, Inf, Inf, Inf, 2))
+  
+  y1 <- coef(model)['A']*exp(coef(model)['K']*inflection)
+  y2 <- 1-(coef(model)['B']*exp(coef(model)['J']*inflection^coef(model)['n']))
+  delta <- (y1-y2)^2
+  
+  r.square <- sum(residuals(model2)^2)
+  
+  return(list(delta=delta, r.square=r.square, model=model))
+  
+
+}
+
+
+
+delta <- function(inflection) eval(inflection)$delta
+r2 <- function(inflection) eval(inflection)$r.square
+
+optimumInflection <- optimize(f=delta, interval=c(40,80), tol=10)
+optimumR2 <- optimize(f=r2, interval=c(40,80),tol=10)
+
+resultInflection <- eval(optimumInflection$minimum)
+resultInflection.model2 <- resultInflection$model
+
+resultR2 <- eval(optimumR2$minimum)
+resultR2.model2 <- resultR2$model
+
+
+
+
+pred <- data.frame(t=seq(20, 150, 1))
+pred$model1 <- predict(model, newdata=pred)
+pred$model2 <- predict(model2, newdata=pred)
+pred$model3 <- predict(resultInflection.model, newdata=data.frame(t=seq(20, 150, 1)))
+pred$model4 <- predict(resultR2.model, newdata=data.frame(t=seq(20, 150, 1)))
+pred$model5 <- predict(resultInflection.model2, newdata=data.frame(t=seq(20, 150, 1)))
+pred$model6 <- predict(resultR2.model2, newdata=data.frame(t=seq(20, 150, 1)))
+
+
+predictions <- gather(pred, key="model", value="y", 2:7)
+plot + geom_line(data=predictions, aes(x=t, y=y, group=model, color=model)) 
+
+
+```
+
+
+```{r}
+resultR2
+optimumR2
+```
+
+```{r}
+eval(70)
+resultR2
+```
+
+
+
+## Try fitting a logistic function directly
+
+```{r}
+
+logit_model <- nls(y~L/(1+exp(-k*(t-inflection))),
+                   data = data,
+                   start=c(L=1, inflection=70, k=0.06))
+
+
+plot <- ggplot() +
+  geom_point(data=data, aes(x=t, y=y))
+
+pred <- data.frame(t=seq(20, 150, 1))
+pred$y <- predict(logit_model, newdata=pred)
+
+
+plot + geom_line(data=pred, aes(x=t, y=y)) +
+  geom_vline(xintercept=coef(logit_model)['inflection'], color="blue")
+
+
+r2<-sum(resid(logit_model)^2)
+r2
+
+summary(logit_model)
+
+```
+
+
+
+## Direct fit of the pieces
+
+```{r}
+
+
+
+for (i in 4:10){
+  
+  log_model <- nls(y~A*exp(k*t), data=data,start=c(A=1, k=0.06), subset = 1:i)
+  invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1), subset = i:14)
+  logr2 <- sum(resid(log_model)^2)
+  invr2 <- sum(resid(invlog_model)^2)
+  
+  combr2 <- logr2 + invr2
+  print(combr2)
+}
+
+
+i <- 8
+
+log_model <- nls(y~A*exp(k*t), data=data,start=c(A=1, k=0.06), subset = 1:i)
+invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1), subset = i:14)
+
+
+logpred <- data.frame(t=seq(20, data$t[i], 1))
+logpred$y <- predict(log_model, newdata=logpred)
+
+invpred <- data.frame(t=seq(data$t[i], 150, 1))
+invpred$y <- predict(invlog_model, newdata=list(t=seq(data$t[i], 150, 1)))
+
+
+comb_pred <- c(predict(log_model), predict(invlog_model))
+comb_pred
+ 
+
+
+plot<-ggplot() +
+    geom_point(data = data, aes(x=t, y=y)) +
+  stat_smooth(aes(x=data$t[c(1:i,i:14)], y=comb_pred), color="green", method="gam") +
+  geom_line(data=logpred, aes(x=t, y=y), color="blue", linetype="dotted") +
+  geom_line(data=invpred, aes(x=t, y=y), color="red", linetype="dotted") +
+  geom_point(aes(x=data$t[1:i], y=predict(log_model)), color="blue") +
+  geom_point(aes(x=data$t[i:14], y=predict(invlog_model)), color="red") 
+plot
+
+
 ```
 
