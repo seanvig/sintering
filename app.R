@@ -4,6 +4,8 @@
 #
 
 library(shiny)
+library(dplyr)
+library(ggplot2)
 load("data/alumina.Rda")
 
 defaultSample <- alumina %>% filter(Sample == '65')
@@ -82,7 +84,7 @@ server <- function(input, output, session) {
             st <- list(A = exp(coef(log_lm)[1]), k = coef(log_lm)[2])
 
             log_model <- nls(y~A*exp(k*t), data=data,start=st, subset = 1:i)
-            invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1), subset = i:14)
+            invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
 
 
         }

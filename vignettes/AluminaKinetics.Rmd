@@ -218,10 +218,12 @@ test
 
 ```{r}
 library(ggplot2)
-#foo<-nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1),subset=5:14)
+#foo<-nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02),subset=5:14)
+
+data <- alumina %>% filter(Sample == "65")
 
 test2 <- lapply(1:10, function(i){
-  model<-nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1),subset=i:14)
+  model<-nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02),subset=i:14)
   
   B<-coefficients(model)["B"]
   J<-coefficients(model)["J"]
@@ -241,8 +243,6 @@ test2 <- lapply(1:10, function(i){
 test2
 
 
-
-
 ```
 
 ```{r}
@@ -250,7 +250,7 @@ library(ggplot2)
 
 test3 <- lapply(1:10, function(i){
   model1 <- glm(log(y)~t, data=data, subset=1:i)
-  model2 <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1),subset=i:14)
+  model2 <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02),subset=i:14)
   
   ET<-sum(resid(model1)^2) + sum(resid(model2)^2)
   
@@ -581,12 +581,13 @@ summary(logit_model)
 
 ```{r}
 
+data <- alumina %>% filter(Sample == "70")
 
 
 for (i in 4:10){
   
   log_model <- nls(y~A*exp(k*t), data=data,start=c(A=1, k=0.06), subset = 1:i)
-  invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1), subset = i:14)
+  invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
   logr2 <- sum(resid(log_model)^2)
   invr2 <- sum(resid(invlog_model)^2)
   
@@ -595,10 +596,10 @@ for (i in 4:10){
 }
 
 
-i <- 8
+i <- 5
 
 log_model <- nls(y~A*exp(k*t), data=data,start=c(A=1, k=0.06), subset = 1:i)
-invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=50, J=0.1), subset = i:14)
+invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
 
 
 logpred <- data.frame(t=seq(20, data$t[i], 1))
