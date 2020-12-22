@@ -40,7 +40,7 @@ ui <- fluidPage(
         # Sidebar panels
         column(4,
                # Sample select panel
-               div(class = "option-group", h3("Samples"),
+               div(class = "option-group", h3("Sample Selection"),
                    selectInput("sampleid",
                                label="Sample",
                                choices=setNames(unique(alumina$Sample), unique(with(alumina, paste(Type,Dope)))),
@@ -49,12 +49,19 @@ ui <- fluidPage(
 
 
                #Inflection panel
-               div(class = "option-group", h3("Inflection"),
+               div(class = "option-group", h3("Modeling"),
                    selectInput("inflection",
                                label="Inflection",
-                               choices=setNames(1:length(defaultSample$Sample), defaultSample$t),
+                               choices=setNames(4:(length(defaultSample$Sample)-3), defaultSample$t[4:(length(defaultSample$Sample)-3)]),
                                selected = length(defaultSample$Sample)%/%2,
-                               width = "80%")
+                               width = "80%"
+                               ),
+                   checkboxInput("predvalue", "Predicted Value", value = TRUE),
+                   checkboxInput("predcurve", "Predicted Curve", value = TRUE),
+                   actionButton("predict", label = "Plot Predictions"),
+                   actionButton("optimize", label = "Optimize"),
+                   actionButton("reset", label = "Clear"),
+
                ),
 
                # Parameter panel
@@ -80,15 +87,6 @@ ui <- fluidPage(
                    )
                ),
 
-               # testing action buttons
-               div(class = "option-group", h3("Test Buttons"),
-                   actionButton("predict", label = "Plot Predictions"),
-                   actionButton("reset", label = "Clear"),
-                   checkboxInput("predvalue", "Predicted Value"),
-                   checkboxInput("predcurve", "Predicted Curve"),
-
-
-               )
         ),
 
         # Main Panel
@@ -101,17 +99,34 @@ ui <- fluidPage(
 
 )
 
-# Try creating a reactive expression
+# Helper functions
 
 logmodelfit <- function(i,data) {
     log_lm <- lm(log(y) ~ t, data)
     st <- list(A = exp(coef(log_lm)[1]), k = coef(log_lm)[2])
 
     log_model <- nls(y~A*exp(k*t), data=data,start=st, subset = 1:i)
+
 }
 
 invlogmodelfit <- function(i,data) {
     invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
+}
+
+optimizelogfit <- function(timepoints, data){
+    models<-lapply(setNames(timepoints, timepoints), function(t,data) {
+
+        log_model <- logmodelfit(t, data)
+        invlog_model <- invlogmodelfit(t, data)
+
+        logr2 <- sum(resid(log_model)^2)
+        invr2 <- sum(resid(invlog_model)^2)
+        r2 <- logr2 + invr2
+
+        result <- list(log_model=log_model, invlog_model=invlog_model, r2=r2)
+
+    },
+    data=data)
 }
 
 # Define server logic required to draw a histogram
@@ -124,52 +139,88 @@ server <- function(input, output, session) {
         data <- alumina %>% filter(Sample == input$sampleid)
     })
 
+    validInflIdx <- reactive({
+        data <- data()
+        idx <- 4:(length(data$Sample)-3)
+    })
+
     sampleName <- reactive({
         with(meta[meta$Sample == input$sampleid,], paste(Type, Dope, "(", Sample, ")"))
     })
 
 
-    # Observe the Predict button
+    # Define reactive values
     plotPreds <- reactiveValues(plot=FALSE)
+
+    index <- reactiveValues(i=NULL)
+
+    # Updates the options for inflection selection based on the selected sample
+    observe({
+        data <- data()
+
+        updateSelectInput(session, "inflection",
+                          choices = setNames(validInflIdx(), data$t[validInflIdx()]),
+                          selected = length(data$Sample)%/%2
+        )
+    })
+
+
+    # Observe the Action buttons
 
     observeEvent(input$predict, {
         plotPreds$plot <-TRUE
+
+        index$i <- input$inflection
+    })
+
+    observeEvent(input$optimize, {
+        plotPreds$plot <-TRUE
+
+        R2 <- sapply(full_model(), "[[", "r2")
+        index$i <- names(which.min(R2))
+
+        updateSelectInput(session, "inflection",
+                          selected = index$i
+        )
     })
 
     observeEvent(input$reset, {
         plotPreds$plot <-FALSE
     })
 
-    log_model <- reactive({
-        if (input$predict == 0)
-            return()
-        if (input$reset)
+    observeEvent(input$sampleid, {
+        plotPreds$plot <-FALSE
+    })
+
+
+    # Calculate models based on sample
+    full_model <- reactive({
+        if (!plotPreds$plot)
             return()
 
-        isolate(logmodelfit(as.numeric(input$inflection),data()))
+        optimizelogfit(validInflIdx(), data())
+    })
+
+    log_model <- reactive({
+        i <- index$i
+        log_model <- full_model()[[as.character(i)]]$log_model
     })
 
     invlog_model <- reactive({
-        if (input$predict == 0)
-            return()
-        if (input$reset)
-            return()
+        i <- index$i
+        invlog_model <- full_model()[[as.character(i)]]$invlog_model
+    })
 
-        isolate(invlogmodelfit(as.numeric(input$inflection),data()))
+    r2 <- reactive({
+        i <- index$i
+        R2 <- full_model()[[as.character(i)]]$r2
+    })
+
+    results <- reactive({
+        paramA <- sapply(full_model(), function(x) sapply(x, "[[", "A"))
     })
 
 
-    # Updates the options for inflection selection based on the selected sample
-    observe({
-        sample <- input$sampleid
-
-        data <- alumina %>% filter(Sample == sample)
-
-        updateSelectInput(session, "inflection",
-            choices = setNames(1:length(data$Sample), data$t),
-            selected = length(data$Sample)%/%2
-        )
-    })
 
     # Updates the values for the parameter inputs
     observe({
@@ -191,7 +242,7 @@ server <- function(input, output, session) {
     output$modelplot <- renderPlot({
         data <- data()
         sampleName <- sampleName()
-
+        i <- as.numeric(index$i)
 
         # Basic plot
         plot<-ggplot() +
@@ -204,8 +255,6 @@ server <- function(input, output, session) {
 
         #  Perform nls around each side of the selected inflection and plot inflection point
         if (plotPreds$plot) {
-
-            i <- as.numeric(input$inflection)
 
             log_model <- log_model()
             invlog_model <- invlog_model()
@@ -250,13 +299,7 @@ server <- function(input, output, session) {
     })
 
     ## Output the combined R2 of the current model
-    output$r2 <- renderText({
-        logr2 <- sum(resid(log_model())^2)
-        invr2 <- sum(resid(invlog_model())^2)
-
-        combr2 <- logr2 + invr2
-
-    })
+    output$r2 <- renderText({r2()})
 }
 
 # Run the application

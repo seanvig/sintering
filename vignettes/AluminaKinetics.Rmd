@@ -580,6 +580,7 @@ summary(logit_model)
 ## Direct fit of the pieces
 
 ```{r}
+library(sintering)
 
 data <- alumina %>% filter(Sample == "70")
 
@@ -623,6 +624,81 @@ plot<-ggplot() +
   geom_point(aes(x=data$t[i:14], y=predict(invlog_model)), color="red") 
 plot
 
+
+```
+
+```{r}
+# Helper functions
+
+logmodelfit <- function(i,data) {
+    log_lm <- lm(log(y) ~ t, data)
+    st <- list(A = exp(coef(log_lm)[1]), k = coef(log_lm)[2])
+
+    log_model <- nls(y~A*exp(k*t), data=data,start=st, subset = 1:i)
+
+}
+
+invlogmodelfit <- function(i,data) {
+    invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
+}
+
+optimizelogfit <- function(timepoints, data){
+    models<-lapply(setNames(timepoints, timepoints), function(t,data) {
+
+        log_model <- logmodelfit(t, data)
+        invlog_model <- invlogmodelfit(t, data)
+
+        logr2 <- sum(resid(log_model)^2)
+        invr2 <- sum(resid(invlog_model)^2)
+        r2 <- logr2 + invr2
+
+        result <- list(log_model=log_model, invlog_model=invlog_model, r2=r2)
+
+    },
+    data=data)
+}
+
+
+validInflIdx <- 4:(length(data$Sample)-3)
+
+
+full_model <- optimizelogfit(validInflIdx, data)
+
+index <- as.character(validInflIdx[1])
+index
+
+full_model[[index]]
+
+full_model[[1]]
+
+r2 <- sapply(full_model, "[[", "r2")
+
+names(which.min(r2))
+
+validInflIdx[which.min(r2)]
+
+results <- ({
+  paramA<- sapply(full_model, function(x) coef(x$log_model)["A"])
+  paramK<- sapply(full_model, function(x) coef(x$log_model)["k"])
+  paramB<- sapply(full_model, function(x) coef(x$invlog_model)["B"])
+  paramJ<- sapply(full_model, function(x) coef(x$invlog_model)["J"])
+  paramR2<- sapply(full_model, "[[", "r2")
+  
+  rbind(paramA, paramK, paramB, paramJ, paramR2)
+})
+results
+
+results <- lapply(full_model, function(x){
+  A <- coef(x$log_model)["A"]
+  K<- coef(x$log_model)["k"]
+  B<- coef(x$invlog_model)["B"]
+  J<- coef(x$invlog_model)["J"]
+  R2<- x$r2
+  
+  list(A=A, K=K, B=B, J=J, R2=R2)
+})
+
+results
 
 ```
 
