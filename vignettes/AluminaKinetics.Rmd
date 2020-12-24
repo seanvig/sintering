@@ -582,7 +582,7 @@ summary(logit_model)
 ```{r}
 library(sintering)
 
-data <- alumina %>% filter(Sample == "70")
+data <- alumina %>% filter(Sample == "84")
 
 
 for (i in 4:10){
@@ -600,7 +600,7 @@ for (i in 4:10){
 i <- 5
 
 log_model <- nls(y~A*exp(k*t), data=data,start=c(A=1, k=0.06), subset = 1:i)
-invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
+invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:length(data$t))
 
 
 logpred <- data.frame(t=seq(20, data$t[i], 1))
@@ -617,11 +617,11 @@ comb_pred
 
 plot<-ggplot() +
     geom_point(data = data, aes(x=t, y=y)) +
-  stat_smooth(aes(x=data$t[c(1:i,i:14)], y=comb_pred), color="green", method="gam") +
+  stat_smooth(aes(x=data$t[c(1:i,i:length(data$t))], y=comb_pred), color="green", method="gam") +
   geom_line(data=logpred, aes(x=t, y=y), color="blue", linetype="dotted") +
   geom_line(data=invpred, aes(x=t, y=y), color="red", linetype="dotted") +
   geom_point(aes(x=data$t[1:i], y=predict(log_model)), color="blue") +
-  geom_point(aes(x=data$t[i:14], y=predict(invlog_model)), color="red") 
+  geom_point(aes(x=data$t[i:length(data$t)], y=predict(invlog_model)), color="red") 
 plot
 
 
@@ -700,5 +700,14 @@ results <- lapply(full_model, function(x){
 
 results
 
+```
+
+### Standard plotting of the data
+
+```{r}
+ggplot(alumina, aes(x=t, y=y,  color=Dope, shape=Type)) +
+  geom_point(size=2) +
+  geom_smooth(method="loess", se=FALSE)
+  
 ```
 

@@ -11,93 +11,133 @@ load("data/alumina.Rda")
 defaultSample <- alumina %>% filter(Sample == '65')
 
 
+#Navbar layout
+ui <-navbarPage("Sintering",
+                tabPanel("Modeling",
+                         fluidPage(
 
-ui <- fluidPage(
+                             # Some custom CSS
+                             tags$head(
+                                 tags$style(
+                                     HTML(
+                                         "
+                                         .option-group {
+                                            border: 1px solid #ccc;
+                                            border-radius: 6px;
+                                            padding: 0px 5px;
+                                            margin: 5px -10px;
+                                            background-color: #f5f5f5;
+                                         }
 
-    # Some custom CSS
-    tags$head(
-        tags$style(
-            HTML("
-                 .option-group {
-                    border: 1px solid #ccc;
-                    border-radius: 6px;
-                    padding: 0px 5px;
-                    margin: 5px -10px;
-                    background-color: #f5f5f5;
-                 }
-
-                 ")
-        ),
-        tags$style(type="text/css", ".inline label{ display: table-cell; text-align: left; vertical-align: middle; }
-                 .inline .form-group{display: table-row;}")
-    ),
-
-    # Application title
-    titlePanel("Sintering Kinetics of Alumina Sera"),
-
-
-    fluidRow(
-        # Sidebar panels
-        column(4,
-               # Sample select panel
-               div(class = "option-group", h3("Sample Selection"),
-                   selectInput("sampleid",
-                               label="Sample",
-                               choices=setNames(unique(alumina$Sample), unique(with(alumina, paste(Type,Dope)))),
-                               selected='65')
-                   ),
+                                         "
+                                     )
+                                 ),
+                                 tags$style(
+                                     type = "text/css",
+                                     ".inline label{ display: table-cell; text-align: left; vertical-align: middle; }
+                                                .inline .form-group{display: table-row;}"
+                                 )
+                             ),
 
 
-               #Inflection panel
-               div(class = "option-group", h3("Modeling"),
-                   selectInput("inflection",
-                               label="Inflection",
-                               choices=setNames(4:(length(defaultSample$Sample)-3), defaultSample$t[4:(length(defaultSample$Sample)-3)]),
-                               selected = length(defaultSample$Sample)%/%2,
-                               width = "80%"
-                               ),
-                   checkboxInput("predvalue", "Predicted Value", value = TRUE),
-                   checkboxInput("predcurve", "Predicted Curve", value = TRUE),
-                   actionButton("predict", label = "Plot Predictions"),
-                   actionButton("optimize", label = "Optimize"),
-                   actionButton("reset", label = "Clear"),
 
-               ),
+                             # Application title
+                             titlePanel("Modeling of Sintering Kinetics of Alumina Sera"),
 
-               # Parameter panel
-               div(class = "option-group", h3("Parameters"),
-                   fluidRow(
-                       column(6,
-                              div(class = "inline",
-                                  numericInput("A",
-                                               label = h4("A: "), value = NULL, step = 0.001, width="50%"),
-                                  numericInput("K",
-                                               label = h4("K: "), value = NULL, step = 0.001, width="50%")
-                              )
 
-                       ),
-                       column(6,
-                              div(class = "inline",
-                                  numericInput("B",
-                                               label = h4("B: "), value = NULL, step = 0.001, width="50%"),
-                                  numericInput("J",
-                                               label = h4("J: "), value = NULL, step = 0.001, width="50%")
-                              )
-                       )
-                   )
-               ),
+                             fluidRow(
+                                 # Sidebar panels
+                                 column(4,
+                                        # Sample select panel
+                                        div(class = "option-group", h3("Sample Selection"),
+                                            selectInput("sampleid",
+                                                        label="Sample",
+                                                        choices=setNames(unique(alumina$Sample), unique(with(alumina, paste(Type,Dope)))),
+                                                        selected='65')
+                                        ),
 
-        ),
 
-        # Main Panel
-        column(8,
-               plotOutput("modelplot"),
-               p("R", tags$sup("2")),
-               verbatimTextOutput("r2")
-        )
-    )
+                                        #Inflection panel
+                                        div(class = "option-group", h3("Modeling"),
+                                            selectInput("inflection",
+                                                        label="Inflection",
+                                                        choices=setNames(4:(length(defaultSample$Sample)-3), defaultSample$t[4:(length(defaultSample$Sample)-3)]),
+                                                        selected = length(defaultSample$Sample)%/%2,
+                                                        width = "80%"
+                                            ),
+                                            checkboxInput("predvalue", "Predicted Value", value = TRUE),
+                                            checkboxInput("predcurve", "Predicted Curve", value = TRUE),
+                                            actionButton("predict", label = "Plot Predictions"),
+                                            actionButton("optimize", label = "Optimize"),
+                                            actionButton("reset", label = "Clear"),
+
+                                        ),
+
+                                        # Parameter panel
+                                        div(class = "option-group", h3("Parameters"),
+                                            fluidRow(
+                                                column(6,
+                                                       div(class = "inline",
+                                                           numericInput("A",
+                                                                        label = h4("A: "), value = NULL, step = 0.001, width="50%"),
+                                                           numericInput("K",
+                                                                        label = h4("K: "), value = NULL, step = 0.001, width="50%")
+                                                       )
+
+                                                ),
+                                                column(6,
+                                                       div(class = "inline",
+                                                           numericInput("B",
+                                                                        label = h4("B: "), value = NULL, step = 0.001, width="50%"),
+                                                           numericInput("J",
+                                                                        label = h4("J: "), value = NULL, step = 0.001, width="50%")
+                                                       )
+                                                )
+                                            )
+                                        ),
+
+                                 ),
+
+                                 # Main Panel
+                                 column(8,
+                                        plotOutput("modelplot"),
+                                        p("R", tags$sup("2")),
+                                        verbatimTextOutput("r2")
+                                 )
+                             )
+
+                         )
+                ),
+
+                tabPanel("Comparative Plotting",
+                         sidebarLayout(
+                             sidebarPanel(
+                                 checkboxGroupInput("type",
+                                                    label="Type",
+                                                    choices=unique(alumina$Type),
+                                                    inline = TRUE
+                                                    ),
+
+                                 checkboxGroupInput("dope",
+                                                    label = "Dope",
+                                                    choices = unique(alumina$Dope),
+                                                    inline = TRUE
+                                 )
+                             ),
+
+                             mainPanel(
+                                 plotOutput("compplot")
+
+                             )
+                         )
+
+
+                )
 
 )
+
+
+
 
 # Helper functions
 
@@ -275,7 +315,7 @@ server <- function(input, output, session) {
             plot <- plot +
                 geom_point(aes(x = data$t[1:i], y = predict(log_model)), color =
                                "blue") +
-                geom_point(aes(x = data$t[i:14], y = predict(invlog_model)), color =
+                geom_point(aes(x = data$t[i:length(data$t)], y = predict(invlog_model)), color =
                                "red")
         }
 
@@ -300,6 +340,23 @@ server <- function(input, output, session) {
 
     ## Output the combined R2 of the current model
     output$r2 <- renderText({r2()})
+
+    # Ouput comparative plot
+    output$compplot <- renderPlot({
+        data <- alumina
+
+        if(length(input$type)) data <- filter(data, Type %in% input$type)
+        if(length(input$dope)) data <- filter(data, Dope %in% input$dope)
+
+        # data <- alumina %>%
+        #     filter(Type %in% input$type) %>%
+        #     filter(Dope %in% input$dope)
+
+        ggplot(data, aes(x=t, y=y,  color=Dope, shape=Type)) +
+            geom_point(size=2) +
+            geom_smooth(method="loess", se=FALSE)
+
+    })
 }
 
 # Run the application
