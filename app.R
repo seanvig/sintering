@@ -150,7 +150,7 @@ logmodelfit <- function(i,data) {
 }
 
 invlogmodelfit <- function(i,data) {
-    invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
+    invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:length(data$t))
 }
 
 optimizelogfit <- function(timepoints, data){
@@ -287,7 +287,7 @@ server <- function(input, output, session) {
         # Basic plot
         plot<-ggplot() +
             geom_point(data = data, aes(x=t, y=y)) +
-            scale_x_continuous(name = "Time (s)", limits = c(-0.05,180)) +
+            scale_x_continuous(name = "Time (s)", limits = c(-0.05,3)) +
             scale_y_continuous(name = "Normalized density", limits = c(-0.05,1.05)) +
 
             ggtitle(paste0("Transition kinetics for sample ", sampleName)) +
@@ -323,10 +323,10 @@ server <- function(input, output, session) {
         if (input$predcurve && plotPreds$plot) {
             range <- range(data$t)
 
-            logpred <- data.frame(t=seq(range[1], data$t[i], 1))
+            logpred <- data.frame(t=seq(range[1], data$t[i], 0.01))
             logpred$y <- predict(log_model, newdata=logpred)
 
-            invpred <- data.frame(t=seq(data$t[i], range[2], 1))
+            invpred <- data.frame(t=seq(data$t[i], range[2], 0.01))
             invpred$y <- predict(invlog_model, newdata=invpred)
 
             plot <- plot +

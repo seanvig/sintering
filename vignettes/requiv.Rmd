@@ -1,0 +1,63 @@
+---
+title: "Equivalent R Code"
+author: "Sean Taylor"
+date: "12/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## Equivalent R Code
+
+The following code does essentially the equivalent operations as the fortran code, but takes advantages of R's power staistical packages to do it in fewer lines of code and avoids the necessity of the lengthy derivations described in Appendix II. For simplicity, I assume $n=1$ in the Johnson's equation.
+
+```{r}
+
+# helper functions
+logmodelfit <- function(i,data) {
+    log_lm <- lm(log(y) ~ t, data)
+    st <- list(A = exp(coef(log_lm)[1]), k = coef(log_lm)[2])
+
+    log_model <- nls(y~A*exp(k*t), data=data,start=st, subset = 1:i)
+
+}
+
+invlogmodelfit <- function(i,data) {
+    invlog_model <- nls(y ~ 1-(B*exp(-J*(t))), data=data, start=c(B=3, J=0.02), subset = i:14)
+}
+
+optimizelogfit <- function(timepoints, data){
+    models<-lapply(setNames(timepoints, timepoints), function(t,data) {
+
+        log_model <- logmodelfit(t, data)
+        invlog_model <- invlogmodelfit(t, data)
+
+        logr2 <- sum(resid(log_model)^2)
+        invr2 <- sum(resid(invlog_model)^2)
+        r2 <- logr2 + invr2
+
+        result <- list(log_model=log_model, invlog_model=invlog_model, r2=r2)
+
+    },
+    data=data)
+}
+
+
+# computations
+
+## load the data from a stored csv file
+data <- read.csv("inst/extdata/sintering_data.csv")
+data$Sample <- as.factor(data$Sample)
+
+
+## subset datapoints to the central points near the presumed inflection point
+validInflIdx <- 4:(length(data$Sample)-3)
+
+## perform the computation
+optimizelogfit(validInflIdx, data)
+
+
+```
+

@@ -1,0 +1,78 @@
+---
+title: "Appendix II"
+author: "Dennis Taylor"
+date: "12/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## Appendix II
+
+### II.1 Curve Fitting by Dynamic Programming
+
+Given the situation deplicted in Fig. II.1 in which it is desired to fit the curve shown with two or more functions. The curve segment is divided into as many interals as one has functions he wishes to appy, in this case the two given in the figure. A natural division of the curve sement for these two functions is at the inflexion point $\tau^{*}$ so that our first interval is $T_{1} \le t_{i} \le \tau^{*}$, and our second interval is $\tau^{*} \le t_{i} \le T_{2}$. The total curve segment is then fit by executing a least suares fit of each function over the interval it best descrives, as inidcated in the figure. The difficulty is that $\tau^{*}$ is not known. To find $\tau^{*}$ we define a function $E(\tau_{j})$ , where $E(\tau_{j})$ is the sum of a least squares fitting of each function over its interval, i.e.
+$$E(\tau_{j}) = \sum_{t_i=T_1}^{\tau_j}\left(Y_i-Ae^{Kt_i}\right)^2+\sum_{t_i=\tau_j}^{T_2}\left(Y_i-\left[1-Be^{-Jt_i^n}\right]\right)^2$$
+$E(\tau_{j})$ is then evaluated over an interval of $\tau_j$ which spans the region in which the inflexion point will clearly occur. The $\tau_j$ for which each $E(\tau_{j})$ is a minimum will be $\tau^{*}$.
+
+This minimization is performed on a computer by means of a "Do Loop", which will have the following general features:
+```{fortran}
+  G = some small number
+  DO 1 J = 1,2,...n
+  EVALUATE E(tj)
+1 CONTINUE
+  DO 2 J = 1,2,...n
+  IF (E(tj) LESS THAN G) set G = E(tj)
+2 CONTINUE
+```
+
+The first Do Loop evaluates $E(\tau_{j})$ for each of the $n$ values of $\tau_j$ chosen. The accuracy of the determination of $E(\tau^{*})$ will depend on how many values of $\tau_j$ are selected for the interval, or i.e. how large the incremental increases in $\tau_j$ are taken to be.
+
+The second Do Loop then selects the minimum value of $E(\tau_{j})$ which determines $\tau^{*}$.
+
+The actual evaluation of $E(\tau_{j})$ referred to in the above program extract is accomplished via a subroutine, i.e. the subroutine calculates $$E(\tau_{j}) = \sum_{t_i=T_1}^{\tau_j}\left(Y_i-Ae^{Kt_i}\right)^2+\sum_{t_i=\tau_j}^{T_2}\left(Y_i-\left[1-Be^{-Jt_i^n}\right]\right)^2$$
+As indicated in Eq. (1) the subroutine performs the least squares operation fo each term and for each data point corresponding to $t_i$. In Eq II.1, $y_i$ is an experimental data point, and $f(t_i)$ is a "theoretical" data point calculated from the particular function. For example, if there are 13 data points between $T_1$ and $\tau_j$, the computer would be asked to find the square of the difference between $y_i$ and $Ae^{Kt_i}$ for each of the 13 points and then to sum the results in order to get $\sum_{t_i=T_1}^{\tau_j}\left(Y_i-Ae^{Kt_i}\right)^2$. The same would be true for the second term.
+
+However, to makes this calculation, it is necessary to know the coefficients A, K, B, J, and n.
+
+### II.3 Linerization of $Y_i=Ae^{Kt_i}$
+
+Linearization is done when taking the logarithm of both $Y_i$ and $f(t_i)$.
+\begin{align*}
+Y_i & = Ae^{Kt_i} \\
+\ln Y_i & = \ln A + Kt_i \\
+\ln Y_i & = C + Kt_i
+
+\end{align*}
+
+*What follows is long derivation of the following two equations*
+
+Let $|R| =$ cardinality of $R \equiv$ no. of $t_i$'s:
+\begin{align*}
+C & = \frac{\sum\left(\ln Y_i-Kt_i\right)}{|R|} \\
+K & = \frac{\sum\left(t_i\ln Y_i-t_i\frac{\sum \ln Y_i}{|R|}\right)}{\sum \left(t_i^2-\frac{t_i\sum t_i}{|R|}\right)}
+\end{align*}
+
+### II.4 Linearization of $Y_i = 1-Be^{-Jt_i^n}$
+
+Linearization is carried out the same as above.
+
+\begin{align*}
+Y_i & = 1-Be^{-Jt_i^n} \\
+1-Y_i & = Be^{-Jt_i^n}
+\end{align*}
+
+(Note that since $T_i$ is a fraction, the form ($1-Y_i$) is used rather than ($Y_i-1$) because it is not possible to take the logarithm of a negative number.)
+
+*What follows is a long derivation of the following two equations*
+
+Let $D = \ln B$
+
+Let $|R_1| =$ cardinality of $D \Rightarrow \sum D \equiv |R_1|D$:
+
+\begin{align*}
+D & = \frac{\sum\left[\ln\left(1-Y_i\right)+Jt_i^n\right]}{|R_1|} \\
+J & = \frac{\sum\left[t_i^n\ln \left(1-Y_i\right) - t_i^n \frac{\sum \ln \left(1-Y_i\right)}{|R_1|}\right]}{\sum \left(\frac{t_i^n \sum t_i^n}{|R_1|} - t_i^{2n}\right)}
+\end{align*}

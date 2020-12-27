@@ -1,0 +1,43 @@
+---
+title: "Sintering Kinetics"
+author: "Dennis Taylor"
+date: "April 1974"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## TL;DR
+
+Previous studies propose that isothermal (constant temperature) sintering curves can be described by the Johnson's equation:
+$$ y = 1-Be^{-Jt^n}$$
+The data obtained by Dennis didn't quite fit this model. Instead he shaw distinctive "S" shaped curves. The upper-right half of the curve was similar to the standardly accepted Johnson's equation. Dennis therefore reasoned that that the lower-left half of the curve was due to some non-isothermal (non-constant temperature) sintering, but once an isothermal condition was acheived, Johnson's equation took over. If he could demonstrate that such a composite model produced a resonable fit of the data, then this would support his hypothesis. So he wrote a computer program to try find a good fit of the model.
+
+To do this he needed to
+
+1. Pick an inflection point.
+2. Fit the data left of the inflection to a vanilla log function of the form $y=Ae^{Kt}$
+3. Fit the data right of the inflection to the Johnson's equation described above
+4. Find the $R^2$ for the combined model
+4. Repeat, setting different inflection points to determine the optimal inflection point that minimizes the $R^2$ value.
+
+## 8.2 Sintering Kinetics
+* Excerpt from Chapter 8 of Dennis' thesis.*
+
+As mentioned earlier, the "S" shape of the sintering curves obtained in this investigation, although seen to a lesser extent by some other workers using rapid heating rates, are not typical of those kinetics which have been treated theoretically. Hence none of the sintering equations available were able to describe these results. It was felt necessary , therefore, to examine the curves for some theoretical basis before attempting to interpret them.
+
+It was recognized that the sintering curves  may have been a composite of, say, tow different conditions of sintering. For example, the initial portion of these curves is similar to those for constant rate of heating experiments. It was reasoned, therefore, that the first portion of the curve -- up to the inflexion point -- represents a region of change-over from non-isothermal to isothermal sintering. The portion of the curves after the inflexion point, may then obey some of the isothermal sintering laws found in the literature.
+
+Johnson has developed a differential isothermal sintering law which is based on instantanewoud values of the shrinkage rate and geometric parameters of the actual instantaneous microstructure, rahter than on parameters of an ideal "model" structure. It is, therefore, quite general to all stages of sintering and superior to Coble's model equation. Because of the generality of Johnson's equation, it was the author's reasoning that if the above interpretation of the sintering curves in this study is correct, i.e. that they comprise both nonisothermal and isothermal segments, then an integrated form of Johnson's equation ought to describe the curves from approximately the point of inflexion onward. If another function is chosen to describe the so-called "non-isothermal" segment of curves, then using a numerical technique known as "dynamic programming", a computer best fit of both functions to the curves can be obtained which shows how well they collectively describe the complete sintering kinetics. A good fit would be regarded as significant evidence that the above interpretation of the nature of the curves is correct.
+
+...
+
+The pre-inflexion segment of the curve is complex because it is not isothermal and is not heating at a constant rate. Because of this and because we are primarily interested only in the post-inflexion segment, we arbitrarily shoose the function
+$$Y=Ae^{K\frac{t-t_o}{t_o}}$$
+to define the pre-inflexion segment of the sintering curves to facilitate analysis of the curves on the computer.
+
+A summary of the "dynamic programming" technique used in fitting the mathematical functions chosen above to the sintering curves is presented here. Details may be found in Appendix II along with the computer program developed.
+
+* Appendix II included in another tab of this app*
+
