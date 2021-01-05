@@ -1,0 +1,44 @@
+---
+title: "Chapter 7"
+author: "Dennis Taylor"
+date: "12/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## TL;DR
+
+Since this was the first study to perform such a well controlled study of sintering rates, the curves looked very different from those previously reported and described. So none of the mathematics used to describe those curves was applicable. Therefore, in this chapter Dennis made some qualitative comparisons.
+
+In general:
+1. Pure Cera alumina has a faster rate of sintering than pure Linde.
+
+2. Y<sub>2</sub>O<sub>3</sub> and SnO<sub>2</sub> increase the sintering rate of both aluminas, with the Y<sub>2</sub>O<sub>3</sub> increasing it possibly just slightly more than the SnO<sub>2</sub>. The doped Cera aluminum has a similar or possibly just slightly higher rate than the doped Linde.
+
+
+## Results
+_Excerpt from Chapter 7 of Dennis' thesis._
+
+
+Examples of the type of sintering curves obtained in this study are given in Fig. 7.1 for Linde and Fused aluminas. Curves for Cera powder are very similar to those for Linde and are excluded for clarity. As presented in the figure, the curves have been normalized according to their measured diametrical shrinkage and so should all have the same magnitude. The differences in magnitudes observed are thought to reflect the effects of any sintering or de-sintering which may have occurred subsequent to the first 2 or 3 minutes of sintering as well as the difficulty in resetting the dilatometer to exactly the same sensitivity from run to run. Nevertheless, as explained in the previous section, the shapes of the curves are expected to be accurate. Possible exceptions to this expectation in Fig. 7.1 are the portion of the SnO<sub>2</sub> doped Linde curve represented by the dotted line and the entire Y<sub>2</sub>O<sub>3</sub> doped Fused curve. The shape of the SnO<sub>2</sub> Linde curve before 30 seconds was obscured by the changing null described in the last section and so is presented only as an estimate. The Y<sub>2</sub>O<sub>3</sub> Fused curve is the result of window fogging which has already been explained. 
+
+
+An interesting feature of Fig. 7.1 is the relative position of the different curves along the time axis. For each of the aluminas used in this study, the SnO<sub>2</sub> doped samples began sintering earlier than the other samples, followed in order by the Y<sub>2</sub>O<sub>3</sub> doped and then the pure specimens. Relative to types of alumina used, the Fused aluminas clearly began sintering after the others, reflecting its larger particle size. The comparison between the Linde and Cera aluminas, except for the SnO<sub>2</sub> samples, is ambiguous and would require more data in order to determine which alumina begins sintering first. However, in the case of SnO<sub>2</sub> doping, the Linde samples consistently began sintering earlier than the Cera.
+
+
+The "S" shape of the curves is not typical of isothermal sintering kinetics. Reasons for this and for the explanation of the "computer best fit" data will be discussed later in detail. However, because of this, the curves were not describable by existing kinetic equations, and hence the familiar kinetic comparisons from straight lines obtained by plotting shrinkage versus some function of time were not possible. Instead, a qualitative check on the relative sintering rates was botained by reducing the curves and then superimposing one upon the other to determine the one with the highest rate. Reducing the curves was accomplished by plotting the data as $\frac{\Delta L}{\Delta L_m} \propto \frac{\Delta V}{\Delta V_m}$ vs. $\frac{t-t_o}{t_o}$ (see Chapter 8 for an explanation of this form).
+
+
+The reduced curves for pure, Y<sub>2</sub>O<sub>3</sub> and SnO<sub>2</sub> doped samples of both Linde and Cera aluminas are shown in Figs. 7.2-7.7. In Figs. 7.8-7.12 the curves for the individual samples are superimposed on each other in different combinations in order to get the various rate comparisons. Note that to facilitate comparison, the curves were shifted the appropriate distance along the time axis. The time axis, then is only relative.
+
+
+As indicated in Fig. 7.1, little usable kinetics data was obtained for the Fused alumina.
+
+Table 7.1 gives the results of this qualitative comparison. It appears that in general,
+
+1. Pure Cera alumina has a faster rate of sintering than pure Linde.
+
+2. Y<sub>2</sub>O<sub>3</sub> and SnO<sub>2</sub> increase the sintering rate of both aluminas, with the Y<sub>2</sub>O<sub>3</sub> increasing it possibly just slightly more than the SnO<sub>2</sub>. The doped Cera aluminum has a similar or possibly just slightly higher rate than the doped Linde. 

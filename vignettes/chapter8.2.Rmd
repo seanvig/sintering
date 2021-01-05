@@ -5,7 +5,7 @@ date: "April 1974"
 output: html_document
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## TL;DR
@@ -23,13 +23,13 @@ To do this he needed to
 4. Repeat, setting different inflection points to determine the optimal inflection point that minimizes the $R^2$ value.
 
 ## 8.2 Sintering Kinetics
-* Excerpt from Chapter 8 of Dennis' thesis.*
+_Excerpt from Chapter 8 of Dennis' thesis._
 
 As mentioned earlier, the "S" shape of the sintering curves obtained in this investigation, although seen to a lesser extent by some other workers using rapid heating rates, are not typical of those kinetics which have been treated theoretically. Hence none of the sintering equations available were able to describe these results. It was felt necessary , therefore, to examine the curves for some theoretical basis before attempting to interpret them.
 
 It was recognized that the sintering curves  may have been a composite of, say, tow different conditions of sintering. For example, the initial portion of these curves is similar to those for constant rate of heating experiments. It was reasoned, therefore, that the first portion of the curve -- up to the inflexion point -- represents a region of change-over from non-isothermal to isothermal sintering. The portion of the curves after the inflexion point, may then obey some of the isothermal sintering laws found in the literature.
 
-Johnson has developed a differential isothermal sintering law which is based on instantanewoud values of the shrinkage rate and geometric parameters of the actual instantaneous microstructure, rahter than on parameters of an ideal "model" structure. It is, therefore, quite general to all stages of sintering and superior to Coble's model equation. Because of the generality of Johnson's equation, it was the author's reasoning that if the above interpretation of the sintering curves in this study is correct, i.e. that they comprise both nonisothermal and isothermal segments, then an integrated form of Johnson's equation ought to describe the curves from approximately the point of inflexion onward. If another function is chosen to describe the so-called "non-isothermal" segment of curves, then using a numerical technique known as "dynamic programming", a computer best fit of both functions to the curves can be obtained which shows how well they collectively describe the complete sintering kinetics. A good fit would be regarded as significant evidence that the above interpretation of the nature of the curves is correct.
+Johnson has developed a differential isothermal sintering law which is based on instantaneous values of the shrinkage rate and geometric parameters of the actual instantaneous microstructure, rahter than on parameters of an ideal "model" structure. It is, therefore, quite general to all stages of sintering and superior to Coble's model equation. Because of the generality of Johnson's equation, it was the author's reasoning that if the above interpretation of the sintering curves in this study is correct, i.e. that they comprise both nonisothermal and isothermal segments, then an integrated form of Johnson's equation ought to describe the curves from approximately the point of inflexion onward. If another function is chosen to describe the so-called "non-isothermal" segment of curves, then using a numerical technique known as "dynamic programming", a computer best fit of both functions to the curves can be obtained which shows how well they collectively describe the complete sintering kinetics. A good fit would be regarded as significant evidence that the above interpretation of the nature of the curves is correct.
 
 ...
 

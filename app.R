@@ -4,15 +4,54 @@
 #
 
 library(shiny)
+library(knitr)
 library(dplyr)
 library(ggplot2)
 load("data/alumina.Rda")
 
 defaultSample <- alumina %>% filter(Sample == '65')
 
+rmdfiles <- c("vignettes/chapter7.Rmd", "vignettes/chapter8.2.Rmd", "vignettes/introduction.Rmd",
+              "vignettes/appendix2.Rmd", "vignettes/appendix3.Rmd", "vignettes/requiv.Rmd")
+sapply(rmdfiles, knit, quiet = TRUE)
+
 
 #Navbar layout
-ui <-navbarPage("Sintering",
+ui <-navbarPage("Alumina Sintering",
+                tabPanel("Introduction",
+                         fluidPage(
+                             withMathJax(includeMarkdown("introduction.md"))
+                         )
+
+                ),
+
+                tabPanel("Qualitative Comparisons",
+                         sidebarLayout(
+                             sidebarPanel(
+                                 checkboxGroupInput("type",
+                                                    label="Type",
+                                                    choices=unique(alumina$Type),
+                                                    inline = TRUE
+                                 ),
+
+                                 checkboxGroupInput("dope",
+                                                    label = "Dope",
+                                                    choices = unique(alumina$Dope),
+                                                    inline = TRUE
+                                 )
+                             ),
+
+                             mainPanel(
+                                 plotOutput("compplot"),
+                                 withMathJax(includeMarkdown("chapter7.md"))
+
+                             )
+                         )
+
+
+                ),
+
+
                 tabPanel("Modeling",
                          fluidPage(
 
@@ -102,37 +141,31 @@ ui <-navbarPage("Sintering",
                                  column(8,
                                         plotOutput("modelplot"),
                                         p("R", tags$sup("2")),
-                                        verbatimTextOutput("r2")
+                                        verbatimTextOutput("r2",placeholder = TRUE),
+                                        withMathJax(includeMarkdown("chapter8.2.md"))
                                  )
                              )
 
                          )
                 ),
 
-                tabPanel("Comparative Plotting",
-                         sidebarLayout(
-                             sidebarPanel(
-                                 checkboxGroupInput("type",
-                                                    label="Type",
-                                                    choices=unique(alumina$Type),
-                                                    inline = TRUE
-                                                    ),
+                navbarMenu("More",
+                           tabPanel('Appendix 2',
+                                    withMathJax(includeMarkdown("appendix2.md"))
 
-                                 checkboxGroupInput("dope",
-                                                    label = "Dope",
-                                                    choices = unique(alumina$Dope),
-                                                    inline = TRUE
-                                 )
-                             ),
+                           ),
 
-                             mainPanel(
-                                 plotOutput("compplot")
+                           tabPanel('Fortran',
+                                    withMathJax(includeMarkdown("appendix3.md"))
+                           ),
 
-                             )
-                         )
+                           tabPanel('R Code',
+                                    withMathJax(includeMarkdown("requiv.md"))
+                           )
 
 
                 )
+
 
 )
 
@@ -287,8 +320,8 @@ server <- function(input, output, session) {
         # Basic plot
         plot<-ggplot() +
             geom_point(data = data, aes(x=t, y=y)) +
-            scale_x_continuous(name = "Time (s)", limits = c(-0.05,3)) +
-            scale_y_continuous(name = "Normalized density", limits = c(-0.05,1.05)) +
+            scale_x_continuous(name = expression(frac(t-t[0],t[0])), limits = c(-0.05,3)) +
+            scale_y_continuous(name = expression(frac(Delta~L, Delta~L[m])), limits = c(-0.05,1.05)) +
 
             ggtitle(paste0("Transition kinetics for sample ", sampleName)) +
             theme(plot.title = element_text(size=(14), face="bold"))
@@ -354,9 +387,21 @@ server <- function(input, output, session) {
 
         ggplot(data, aes(x=t, y=y,  color=Dope, shape=Type)) +
             geom_point(size=2) +
-            geom_smooth(method="loess", se=FALSE)
+            geom_smooth(method="loess", se=FALSE) +
+            scale_x_continuous(name = expression(frac(t-t[0],t[0])), limits = c(-0.05,3)) +
+            scale_y_continuous(name = expression(frac(Delta~L, Delta~L[m])), limits = c(-0.05,1.05))
+
 
     })
+
+    # output$chapter8.2<- renderUI({
+    #     HTML(markdown::markdownToHTML(knit("vignettes/chapter8.2.Rmd", quiet=TRUE)))
+    # })
+    #
+    # output$chapter7<- renderUI({
+    #     HTML(markdown::markdownToHTML(knit("vignettes/chapter7.Rmd", quiet=TRUE)))
+    # })
+
 }
 
 # Run the application
