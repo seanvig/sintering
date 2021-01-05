@@ -1,0 +1,34 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+#Note, you should run this notebook all at once rather than piece by peice
+```{r, fig.keep='all'}
+library(inflection)
+library(sintering)
+
+
+p <- alumina[alumina$Dope=="Pure",]
+plot(p$t, p$y)
+grid()
+bb <- ese(p$t,p$y,0)
+bb
+pese=bb[,3];pese
+abline(v=pese)
+cc=bese(p$t,p$y,0)
+cc$iplast
+abline(v=cc$iplast,col='blue')
+
+ 
+
+foo <- glm(formula = p$y ~ p$t, family=binomial)
+plot(foo)
+
+ 
+
+plot(p$t, p$y)
+spl3 <- smooth.spline(x = p$t, y = p$y, df = 8)
+lines(spl3, col = 2)
+```
+

@@ -298,7 +298,7 @@ library(sintering)
 
 
 
-load("../Desktop/alumina.Rda")
+load("../data/alumina.Rda")
 p <- alumina[alumina$Dope=="Y2O3",]
 plot(p$t, p$y)
 
@@ -327,7 +327,7 @@ xtime <- predict.glm(foo, newdata=pred)
 
 
 pred <- predict(foo, type="response")
-predictions <- gather(pred, key="model", value="y", 2:3)
+predictions <- tidyr::gather(pred, key="model", value="y", 2:3)
 
 
 
