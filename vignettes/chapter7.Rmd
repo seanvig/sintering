@@ -9,17 +9,20 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## TL;DR
+## Discussion
+
+### TL;DR
 
 Since this was the first study to perform such a well controlled study of sintering rates, the curves looked very different from those previously reported and described. So none of the mathematics used to describe those curves was applicable. Therefore, in this chapter Dennis made some qualitative comparisons.
 
-In general:
-1. Pure Cera alumina has a faster rate of sintering than pure Linde.
+In general:  
+
+1. Pure Cera alumina has a faster rate of sintering than pure Linde.  
 
 2. Y<sub>2</sub>O<sub>3</sub> and SnO<sub>2</sub> increase the sintering rate of both aluminas, with the Y<sub>2</sub>O<sub>3</sub> increasing it possibly just slightly more than the SnO<sub>2</sub>. The doped Cera aluminum has a similar or possibly just slightly higher rate than the doped Linde.
 
 
-## Results
+### Qualitative Sintering results
 _Excerpt from Chapter 7 of Dennis' thesis._
 
 

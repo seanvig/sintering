@@ -15,7 +15,6 @@ rmdfiles <- c("vignettes/chapter7.Rmd", "vignettes/chapter8.2.Rmd", "vignettes/i
               "vignettes/appendix2.Rmd", "vignettes/appendix3.Rmd", "vignettes/requiv.Rmd")
 sapply(rmdfiles, knit, quiet = TRUE)
 
-
 #Navbar layout
 ui <-navbarPage("Alumina Sintering",
                 tabPanel("Introduction",

@@ -8,7 +8,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## TL;DR
+## Discussion
+
+### TL;DR
 
 Previous studies propose that isothermal (constant temperature) sintering curves can be described by the Johnson's equation:
 $$ y = 1-Be^{-Jt^n}$$
@@ -22,7 +24,7 @@ To do this he needed to
 4. Find the $R^2$ for the combined model
 4. Repeat, setting different inflection points to determine the optimal inflection point that minimizes the $R^2$ value.
 
-## 8.2 Sintering Kinetics
+### 8.2 Sintering Kinetics
 _Excerpt from Chapter 8 of Dennis' thesis._
 
 As mentioned earlier, the "S" shape of the sintering curves obtained in this investigation, although seen to a lesser extent by some other workers using rapid heating rates, are not typical of those kinetics which have been treated theoretically. Hence none of the sintering equations available were able to describe these results. It was felt necessary , therefore, to examine the curves for some theoretical basis before attempting to interpret them.

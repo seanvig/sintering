@@ -11,8 +11,25 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 
 ## Equivalent R Code
 
-The following code does essentially the equivalent operations as the fortran code, but takes advantages of R's power staistical packages to do it in fewer lines of code and avoids the necessity of the lengthy derivations described in Appendix II. For simplicity, I assume $n=1$ in the Johnson's equation.
+The following code does essentially the equivalent operations as the fortran code, but takes advantages of R's powerful statistical packages to do it in fewer lines of code and avoids the necessity of the lengthy derivations described in Appendix II. For simplicity, I assume $n=1$ in the Johnson's equation.
 
+**Load data and perform modeling**
+
+```{r}
+## load the data from a stored csv file
+data <- read.csv("inst/extdata/sintering_data.csv")
+data$Sample <- as.factor(data$Sample)
+
+
+## subset datapoints to the central points near the presumed inflection point
+validInflIdx <- 4:(length(data$Sample)-3)
+
+## perform the computation
+optimizelogfit(validInflIdx, data)
+
+```
+
+**Subroutines**
 ```{r}
 
 # helper functions
@@ -43,21 +60,5 @@ optimizelogfit <- function(timepoints, data){
     },
     data=data)
 }
-
-
-# computations
-
-## load the data from a stored csv file
-data <- read.csv("inst/extdata/sintering_data.csv")
-data$Sample <- as.factor(data$Sample)
-
-
-## subset datapoints to the central points near the presumed inflection point
-validInflIdx <- 4:(length(data$Sample)-3)
-
-## perform the computation
-optimizelogfit(validInflIdx, data)
-
-
 ```
 

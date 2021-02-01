@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 *.md
-
+*.html
 vignettes/*.nb.html

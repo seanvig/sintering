@@ -2,9 +2,8 @@
 title: "Appendix II"
 author: "Dennis Taylor"
 date: "12/24/2020"
-output:
-  html_document:
-    mathjax: "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"---
+output: html_document
+---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
@@ -41,29 +40,24 @@ However, to makes this calculation, it is necessary to know the coefficients A, 
 ### II.3 Linerization of $Y_i=Ae^{Kt_i}$
 
 Linearization is done when taking the logarithm of both $Y_i$ and $f(t_i)$.
-\begin{align*}
-Y_i & = Ae^{Kt_i} \\
-\ln Y_i & = \ln A + Kt_i \\
-\ln Y_i & = C + Kt_i
 
-\end{align*}
-
-*What follows is long derivation of the following two equations*
+$$Y_i=Ae^{Kt_i}$$
+$$\ln Y_i = \ln A + Kt_i$$
+$$\ln Y_i = C + Kt_i$$
+_What follows is long derivation of the following two equations_
 
 Let $|R| =$ cardinality of $R \equiv$ no. of $t_i$'s:
-\begin{align*}
-C & = \frac{\sum\left(\ln Y_i-Kt_i\right)}{|R|} \\
-K & = \frac{\sum\left(t_i\ln Y_i-t_i\frac{\sum \ln Y_i}{|R|}\right)}{\sum \left(t_i^2-\frac{t_i\sum t_i}{|R|}\right)}
-\end{align*}
+
+$$
+C = \frac{\sum\left(\ln Y_i-Kt_i\right)}{|R|}$$
+$$K = \frac{\sum\left(t_i\ln Y_i-t_i\frac{\sum \ln Y_i}{|R|}\right)}{\sum \left(t_i^2-\frac{t_i\sum t_i}{|R|}\right)}$$
 
 ### II.4 Linearization of $Y_i = 1-Be^{-Jt_i^n}$
 
 Linearization is carried out the same as above.
 
-\begin{align*}
-Y_i & = 1-Be^{-Jt_i^n} \\
-1-Y_i & = Be^{-Jt_i^n}
-\end{align*}
+$$Y_i = 1-Be^{-Jt_i^n}$$
+$$1-Y_i = Be^{-Jt_i^n}$$
 
 (Note that since $T_i$ is a fraction, the form ($1-Y_i$) is used rather than ($Y_i-1$) because it is not possible to take the logarithm of a negative number.)
 
@@ -73,7 +67,5 @@ Let $D = \ln B$
 
 Let $|R_1| =$ cardinality of $D \Rightarrow \sum D \equiv |R_1|D$:
 
-\begin{align*}
-D & = \frac{\sum\left[\ln\left(1-Y_i\right)+Jt_i^n\right]}{|R_1|} \\
-J & = \frac{\sum\left[t_i^n\ln \left(1-Y_i\right) - t_i^n \frac{\sum \ln \left(1-Y_i\right)}{|R_1|}\right]}{\sum \left(\frac{t_i^n \sum t_i^n}{|R_1|} - t_i^{2n}\right)}
-\end{align*}
+$$D = \frac{\sum\left[\ln\left(1-Y_i\right)+Jt_i^n\right]}{|R_1|}$$
+$$J = \frac{\sum\left[t_i^n\ln \left(1-Y_i\right) - t_i^n \frac{\sum \ln \left(1-Y_i\right)}{|R_1|}\right]}{\sum \left(\frac{t_i^n \sum t_i^n}{|R_1|} - t_i^{2n}\right)}$$
