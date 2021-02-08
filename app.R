@@ -12,7 +12,8 @@ load("data/alumina.Rda")
 defaultSample <- alumina %>% filter(Sample == '65')
 
 rmdfiles <- c("vignettes/chapter7.Rmd", "vignettes/chapter8.2.Rmd", "vignettes/introduction.Rmd",
-              "vignettes/appendix2.Rmd", "vignettes/appendix3.Rmd", "vignettes/requiv.Rmd")
+              "vignettes/appendix2.Rmd", "vignettes/appendix3.Rmd", "vignettes/requiv.Rmd",
+              "vignettes/background.Rmd", "vignettes/gallery.Rmd")
 sapply(rmdfiles, knit, quiet = TRUE)
 
 #Navbar layout
@@ -160,6 +161,15 @@ ui <-navbarPage("Alumina Sintering",
 
                            tabPanel('R Code',
                                     withMathJax(includeMarkdown("requiv.md"))
+                           ),
+
+                           tabPanel("Gallery",
+                                    withMathJax(includeMarkdown("gallery.md")),
+
+                           ),
+
+                           tabPanel('Background',
+                                    withMathJax(includeMarkdown("background.md"))
                            )
 
 
@@ -243,6 +253,8 @@ server <- function(input, output, session) {
         plotPreds$plot <-TRUE
 
         index$i <- input$inflection
+
+        setCoef()
     })
 
     observeEvent(input$optimize, {
@@ -254,6 +266,8 @@ server <- function(input, output, session) {
         updateSelectInput(session, "inflection",
                           selected = index$i
         )
+
+        setCoef()
     })
 
     observeEvent(input$reset, {
@@ -292,22 +306,24 @@ server <- function(input, output, session) {
         paramA <- sapply(full_model(), function(x) sapply(x, "[[", "A"))
     })
 
+    setCoef <- function(){
+        log_model <- log_model()
+        invlog_model <- invlog_model()
+
+        updateNumericInput(session, "A", value = as.numeric(coef(log_model)["A"]))
+        updateNumericInput(session, "K", value = as.numeric(coef(log_model)["k"]))
+        updateNumericInput(session, "B", value = as.numeric(coef(invlog_model)["B"]))
+        updateNumericInput(session, "J", value = as.numeric(coef(invlog_model)["J"]))
+    }
+
 
 
     # Updates the values for the parameter inputs
     observe({
-        if (input$predvalue || input$predcurve) {
-
-            log_model <- log_model()
-            invlog_model <- invlog_model()
-
-            updateNumericInput(session, "A", value = as.numeric(coef(log_model)["A"]))
-            updateNumericInput(session, "K", value = as.numeric(coef(log_model)["k"]))
-            updateNumericInput(session, "B", value = as.numeric(coef(invlog_model)["B"]))
-            updateNumericInput(session, "J", value = as.numeric(coef(invlog_model)["J"]))
-
-        }
+        if (input$predvalue || input$predcurve) setCoef()
     })
+
+
 
 
     # Plot of sample data to go in the main plot window
@@ -357,13 +373,17 @@ server <- function(input, output, session) {
 
             logpred <- data.frame(t=seq(range[1], data$t[i], 0.01))
             logpred$y <- predict(log_model, newdata=logpred)
+            logpred$z <- input$A*exp(input$K*logpred$t)
 
             invpred <- data.frame(t=seq(data$t[i], range[2], 0.01))
             invpred$y <- predict(invlog_model, newdata=invpred)
+            invpred$z <- 1-(input$B*exp(-input$J*(invpred$t)))
 
             plot <- plot +
-                geom_line(data=logpred, aes(x=t, y=y), color="blue", linetype="dotted") +
-                geom_line(data=invpred, aes(x=t, y=y), color="red", linetype="dotted")
+                geom_line(data=logpred, aes(x=t, y=y), color="blue", linetype="dotdash") +
+                geom_line(data=invpred, aes(x=t, y=y), color="red", linetype="dotdash") +
+                geom_line(data=logpred, aes(x=t, y=z), color="blue", linetype="dotted") +
+                geom_line(data=invpred, aes(x=t, y=z), color="red", linetype="dotted")
         }
 
         plot
@@ -393,13 +413,6 @@ server <- function(input, output, session) {
 
     })
 
-    # output$chapter8.2<- renderUI({
-    #     HTML(markdown::markdownToHTML(knit("vignettes/chapter8.2.Rmd", quiet=TRUE)))
-    # })
-    #
-    # output$chapter7<- renderUI({
-    #     HTML(markdown::markdownToHTML(knit("vignettes/chapter7.Rmd", quiet=TRUE)))
-    # })
 
 }
 

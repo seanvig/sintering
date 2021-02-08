@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Aluminum oxide, Al<sub>2</sub>O<sub>3</sub>, commonly called "alumina", is a common component in advanced ceramics. When refined from bauxite, alumina generally looks like a white powder similar to table salt or granular sugar. Alumina ceramics are extremely resistant to wear and corrosion, and are excellent electrical insulators. As such, alumina ceramics have found applications in electronics, pump components, automotive sensors, semiconductors, and aerospace components.
 
-"Sintering" is the processes of forming a solid mass from a compact powder without melting. The atoms of the material diffuse beyond the boundaries of the individual particles, thus fusing them together into a single solid piece. The process can be likened to ice cubes sticking together in a glass, or the compaction of snow into ice. Although heat is involved, the temperatures used in the process is generally below the melting point of the material. Commercial ceramics such as those described above are typically manufactured using a sintering process. 
+"Sintering" is the processes of forming a solid mass from a compact powder without melting. The atoms of the material diffuse beyond the boundaries of the individual particles, thus fusing them together into a single solid piece. The process can be likened to ice cubes sticking together in a glass, or the compaction of snow into ice. Although heat is involved, the temperatures used in the process are generally below the melting point of the material. Commercial ceramics such as those described above are typically manufactured using a sintering process. 
 
 
 <figure>

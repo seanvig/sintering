@@ -1,0 +1,43 @@
+---
+title: "Background"
+author: "Sean Taylor"
+date: "1/31/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Background
+
+My father got his PhD in Thermal Ceramics from the University of Leeds in 1974. This involved moving his young family to Leeds England from 1968-1971. It was a formative time in my parents' life and in many ways shaped all of us. I grew up hearing stories of how they coped in a foreign country; raising a young family on scant resources. I also remember hearing stories of how my dad was trying to advance his research, often inventing technology where none existed. After three years, his funding unexpectedly ran out and he had to abrubtly conclude his research and move back to the United States where he finished his dissertation some years later.
+
+The fact that my dad was a scientist and earned his doctorate certainly influenced my own decision to pursue a doctorate in the sciences. It was during my graduate school years, raising a young family far away from our home, struggling to make ends meet, and desperately trying to get my experiments to work, that I think I finally gained a true appreciation for what it must have been like for my parents.
+
+The genesis of this project came to me in 2017 after a brief visit to my parents. I finally got around to asking my dad if he had a copy of his thesis, which he agreed to let me take with me. Knowing how much work had gone into my thesis, and knowing that it was unlikely that anyone would ever read it, I figured it would mean something to him just to know that I had read it. 
+
+While flipping through the pages, I came across the Appendix where I saw that he had included the entire Fortran code that he had written to help model the sintering curves from his research. I had this vague recollection of him telling me about writing out the code on punch cards and trying to get it to compile. And how frustrating it was to get a compilation error and to dig through and try to find the error. I also had the notion that he only ever got to run the code once before he had to leave for the US. In my mind's eye, I could see him in a dim room next to a bulky IBM mainframe, desperately feeding cards into the machine, hoping it would compile, and then rushing with his results to the boat to catch it before he set sail. I have since clarified that he most likely ran this program when he was in the US and was probably not that rushed. However, the image was stuck in my head and it gave me an idea. At this point in my career, I had successfully trained myself to become a computational biologist, and I fancied that I had a fair amount of coding experience myself. Wouldn't it be cool I thought to find a way to redeploy Dad's code on a modern machine using modern coding methods?
+
+The idea kicked around for a few years without really getting much more traction than being a cool idea. Finally in 2019 I started making some serious headway by brining the thesis on the bus with me and reading through on my 45 min commute to and from work. In the fall of 2019, I started tackling the problem of actually translating the code. My original thought was to find a way to use the existing code verbatim so that Dad could have the pleasure of running "his" code as often as he wanted. This proved to be a bit challenging though. Although Fortran is still around, it has changed a bit in the interveneing 40 years and it was not as straightforward as I had hoped to find a way to serve up the original code.
+
+My Plan B was to serve it up using R Shiny. Shiny is a tool based on the R language, which is very popular for statistics and computational biology. The benefits here are that the language is well suited for the application at hand, and I already had some experience in R. In keeping with my original intent, I set out to try to convert the Fortran code into the equivalent in R with the intent to preserve as much of the idiosyncrasies of the code as I could so it would be "authentic". This meant that I had to take a crash course in Fortran...and specifically, 40 year old fortran so that I could understand what each line was trying to do. And it turned out that trying to convert the oringal code structure into R equivalents was also not as straightforward as I had hoped. Not that the structure of the original code was unsound or that it wasn't doable...its was just that modern R had evolved to do the same things in more straightforward manner. While R is capable of DO and FOR loops for example, one usually doesn't need to rely on such constructs in R. Similarly, the original fortran had limitations in conventions for naming variables, storing constants, etc that were obsolete in modern contexts. However, the real kicker came when I realized that original code was most likely designed to read the input from a punch card. Not knowing how that input was structured and finding no hints in the text, I decided that there was no practical way to even test the code.
+
+So, on to Plan C. Since I didn't have the original input data, I decided that I would have to infer it from the published figures. Reasoning that my dad probably had to plot the figures by hand, it would not be too far a stretch to similarly extract the values by hand. So I photocopied the figures, and pulled out the old ruler and pencil and estimated all the data points. Now I could format them any way I liked and feed them directly into my program.
+
+Having abandoned the idea of preserving the structure of the code, my goal now was to merely preserve the intent of the code: given this input, produce the same output by whatever means convenient. I spent some amount of time contemplating the best R-ish way to accomplish the fitting. R has some robust libraries for general linearized models that make fitting the log funciton and Johnson's equation trivial. However, I was unsure how to create a model that combined them and optimized for the inflection point. I consulted with my colleagues and they encouraged me to use a logit, or odds ratio function which are typically used to fit "S" shaped curves. However, I was not sure what physical basis the coefficients of such a curve would have. In contrast, Dad had already made a sound case justifying the use of the Jonson's equation. In the end, I decided that the approach that my Dad had settled on was already the best approach. 
+
+So, in the end I took the same basic approach: 
+
+1. Pick an inflection point.
+2. Fit the data left of the inflection to a vanilla log function of the form $y=Ae^{Kt}$
+3. Fit the data right of the inflection to the Johnson's equation described above
+4. Find the $R^2$ for the combined model
+4. Repeat, setting different inflection points to determine the optimal inflection point that minimizes the $R^2$ value.
+
+I had the advantage though of being able to use pre-compiled R functions for the linear modeling, so I could avoid the linearizations performed by my Dad. Also, I could use "vectorized" functions, meaning that I could iterate through all the inflection points in parallel rather than writing DO loops. 
+
+The rest was a fun exercise in trying to make the plots interactive so that Dad could play around with different parameters and see how these parameters subtly or drastically change the shape of the curves.
+
+It has been a fun project. As I dug into the work, I really came to appreciate how groundbreaking my father's work was. From inventing new furnaces, to using electron microscopes, to writing computer algorithms, my dad was constantly on the bleeding edge of technology for his time. And while I did accomplish the small goal of reproducing his work on a modern interface; more importantly in digging into this, I gained a richer glimpse into this time in my parents' life that has played such a pivotal role in the course of our whole family.
+

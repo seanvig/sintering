@@ -1,0 +1,54 @@
+---
+title: "Gallery"
+author: "Sean Taylor"
+date: "2/7/2021"
+output: html_document
+  css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Gallery
+
+The original cover and front matter of the 1974 thesis. I particularly enjoyed reading the sweet dedication to my mom and family. It resonated with me powerfully given all that Jenny and I went through during our graduate school years.
+
+
+![](img016.jpg)
+<br>
+
+![](img018.jpg)
+<br>
+
+![](img019.jpg)
+<br>
+
+![](img020.jpg)
+<br>
+
+The following images are diagrams of the furnace and technique that my dad invented that allowed him to observe the sintering kinetics of these samples with such high precision. To my knowledge, nothing like this had ever been done before.
+
+![](img022.jpg)
+<br>
+![](img023.jpg)
+<br>
+
+These next three figures are examples of the origignal plots of sintering curves published in the 1974 thesis. Lacking any published tabular data, I extrapolated the data points from these plots. You can see the extrapolation marks I penciled over the images in some of these. (Note, I penciled over a copy of the graphs, not the originals!)
+<br>
+
+![](img024.jpg)
+<br>
+![](img025.jpg)
+<br>
+![](img026.jpg)
+<br>
+
+Stunning electron microscope images of the alumina before and after sintering. These images were cutting edge for the time period.
+
+![](img021.jpg)
+
+<br>
+
+![](img027.jpg)
+<br>
