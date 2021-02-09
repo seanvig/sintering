@@ -9,7 +9,7 @@ Maintainer: Sean Taylor <seanvig@gmail.com>
 Description: Based on the doctoral thesis work of Dennis H. Taylor.
     This package performs dynamic programming to perform model fitting of the 
     kinetics of rapid alumina sintering.
-Depends: dplyr
+Depends: dplyr, ggplot2
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true

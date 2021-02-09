@@ -1,0 +1,13 @@
+name: sintering
+title: sintering
+username:
+account: seanvig
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3605770
+bundleId: 4199626
+url: https://seanvig.shinyapps.io/sintering/
+when: 1612854346.46499
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rbuildignore|.RData|appendix2.md|appendix3.md|background.md|chapter7.md|chapter8.2.md|gallery.md|introduction.md|README.md|requiv.md
